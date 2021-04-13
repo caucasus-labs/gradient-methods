@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.lang.Double?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<StackPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.caucasus.optimization.ui.MainController">
+    <fx:define>
+        <Double fx:id="MAX_VALUE" fx:value="1.7976931348623157E308"/>
+    </fx:define>
+
+    <Label text = "Dichotomy method" fx:id="methodName" StackPane.alignment="TOP_CENTER">
+        <font>
+            <Font size = "32"/>
+        </font>
+        <padding>
+            <Insets top="10"/>
+        </padding>
+    </Label>
+
+    <AnchorPane StackPane.alignment="CENTER" maxHeight="650" maxWidth="800" >
+        <Label text = "Eps = " AnchorPane.leftAnchor="50" AnchorPane.topAnchor="3">
+            <font>
+                <Font size = "25"/>
+            </font>
+        </Label>
+
+        <TextField AnchorPane.leftAnchor="120" fx:id="epsTextField" text = "0.00001">
+            <font>
+                <Font size = "20"/>
+            </font>
+        </TextField>
+
+        <Button text = "Calculate" onAction="#clickCalculate" AnchorPane.leftAnchor="500" prefHeight="50"/>
+
+        <LineChart fx:id="lineChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
+                   createSymbols = "false" legendVisible="false">
+            <xAxis>
+                <NumberAxis upperBound="1"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis upperBound="30"/>
+            </yAxis>
+        </LineChart>
+
+        <Label text="left" layoutX="300" layoutY="540"/>
+        <Label text="approx" layoutX="370" layoutY="540"/>
+        <Label text="right" layoutX="450" layoutY="540"/>
+
+        <Label fx:id="leftLabel" text="0" layoutX="300" layoutY="560"/>
+        <Label fx:id="approxLabel" text="0" layoutX="370" layoutY="560"/>
+        <Label fx:id="rightLabel" text="0" layoutX="450" layoutY="560"/>
+
+        <Label text="iteration" layoutX="150" layoutY="617"/>
+        <Label fx:id="iterationNumberLabel" text = "0" layoutX="200" layoutY="617"/>
+
+        <Slider fx:id="iterationSlider" layoutX="250" layoutY="620" prefWidth="300" snapToTicks="true"
+                showTickMarks="true" minorTickCount="4" majorTickUnit="5" blockIncrement="1"/>
+
+
+
+    </AnchorPane>
+
+
+    <HBox prefHeight="75.0" prefWidth="800" StackPane.alignment="BOTTOM_CENTER" maxHeight="75.0">
+        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
+                HBox.hgrow="ALWAYS" onAction="#clickDichotomy" fx:id="dichotomyButton" textAlignment="CENTER"/>
+
+        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
+                HBox.hgrow="ALWAYS" onAction="#clickGoldenSection" fx:id="goldenSectionButton" textAlignment="CENTER"/>
+
+        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
+                HBox.hgrow="ALWAYS" onAction="#clickFibonacci" fx:id="fibonacciButton" textAlignment="CENTER"/>
+
+        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
+                HBox.hgrow="ALWAYS" onAction="#clickParaboloid" fx:id="paraboloidButton" textAlignment="CENTER"/>
+
+        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
+                HBox.hgrow="ALWAYS" onAction="#clickBrent" fx:id="brentButton" textAlignment="CENTER"/>
+    </HBox>
+</StackPane>
