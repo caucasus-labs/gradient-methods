@@ -3,7 +3,7 @@ package com.caucasus.optimization.algos.interfaces;
 import java.util.List;
 
 class GradientSolution {
-    public final List<Point> points;
+    private final List<Point> points;
 
     public GradientSolution(List<Point> points) {
         this.points = points;
