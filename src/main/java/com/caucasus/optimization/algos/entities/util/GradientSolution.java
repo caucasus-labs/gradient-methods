@@ -1,8 +1,8 @@
-package com.caucasus.optimization.algos.interfaces;
+package com.caucasus.optimization.algos.entities.util;
 
 import java.util.List;
 
-class GradientSolution {
+public class GradientSolution {
     private final List<Point> points;
 
     public GradientSolution(List<Point> points) {

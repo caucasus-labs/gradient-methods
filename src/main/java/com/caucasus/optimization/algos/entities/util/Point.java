@@ -1,4 +1,4 @@
-package com.caucasus.optimization.algos.interfaces;
+package com.caucasus.optimization.algos.entities.util;
 
 import java.util.List;
 
