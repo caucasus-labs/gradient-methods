@@ -3,18 +3,18 @@ package com.caucasus.optimization.algos.entities.util;
 import java.util.List;
 
 public class GradientSolution {
-    private final List<Point> points;
+    private final List<Vector> vectors;
 
-    public GradientSolution(List<Point> points) {
-        this.points = points;
+    public GradientSolution(List<Vector> vectors) {
+        this.vectors = vectors;
     }
 
-    public List<Point> getPoints() {
-        return points;
+    public List<Vector> getPoints() {
+        return vectors;
     }
 
-    public Point getEndPoint() {
-        return points.get(points.size() - 1);
+    public Vector getEndPoint() {
+        return vectors.get(vectors.size() - 1);
     }
 
 }

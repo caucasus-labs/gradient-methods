@@ -31,7 +31,7 @@ public class MainController {
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction();
+    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(64., 0.)), List.of(-10., 30.), 13.);
     final Interval interval = new Interval(0, 1);
     final Double DEFAULT_EPS = 0.00001;
     final int PLOT_STEP_COUNT = 100;
@@ -137,9 +137,9 @@ public class MainController {
     }
 
     private void calculateSolutions(Double eps) {
-        gradientSolution = new Gradient(/* function, eps */).getSolution();
-        steepestDescentSolution = new SteepestDescent(/* function, eps */).getSolution();
-        conjugateSolution = new Conjugate(/* function, eps */).getSolution();
+        gradientSolution = new Gradient(function, eps).getSolution();
+        steepestDescentSolution = new SteepestDescent(function, eps).getSolution();
+        conjugateSolution = new Conjugate(function, eps).getSolution();
         updateButtonsText(buttonsWithMethod);
     }
 
@@ -175,7 +175,7 @@ public class MainController {
 //            default:
 //                throw new IllegalStateException("Unexpected method: " + currentMethod);
 //        }
-        solution = new GradientSolution(List.of(new Point(List.of(1.0, 1.0)), new Point((List.of(2.0, 2.0)))));
+        solution = new GradientSolution(List.of(new Vector(List.of(1.0, 1.0)), new Vector((List.of(2.0, 2.0)))));
         return solution;
     }
 
