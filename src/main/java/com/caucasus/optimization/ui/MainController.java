@@ -1,17 +1,19 @@
 package com.caucasus.optimization.ui;
 
 import com.caucasus.optimization.algos.entities.minfinder.*;
-import com.caucasus.optimization.algos.entities.util.Interval;
-import com.caucasus.optimization.algos.entities.util.ParaboloidSolution;
-import com.caucasus.optimization.algos.entities.util.Solution;
+import com.caucasus.optimization.algos.entities.util.*;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MainController {
-
     @FXML
     private Label methodName;
     @FXML
@@ -21,23 +23,25 @@ public class MainController {
     @FXML
     private Label iterationNumberLabel;
     @FXML
-    private Label leftLabel, approxLabel, rightLabel;
+    private Label x1Label, x2Label, approxLabel;
     @FXML
     private LineChart<Double, Double> lineChart;
     @FXML
-    private ToggleButton dichotomyButton, goldenSectionButton, fibonacciButton, paraboloidButton, brentButton;
+    private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
 
-    final Function<Double, Double> function = x -> Math.exp(3.0D * x) + 5 * Math.exp(-2.0D * x);
+    private ArrayList<ButtonWithMethod> buttonsWithMethod;
+
+    final QuadraticFunction function = new QuadraticFunction();
     final Interval interval = new Interval(0, 1);
     final Double DEFAULT_EPS = 0.00001;
     final int PLOT_STEP_COUNT = 100;
     final String NUMBER_FORMAT = "%.7f";
-    final private XYChart.Series<Double, Double> functionSeries = plotLineSeries(function, interval);
+    //final private XYChart.Series<Double, Double> functionSeries = plotLineSeries(function, interval);
 
-    private Solution dichotomySolution, goldenSectionSolution, fibonacciSolution;
-    private ParaboloidSolution paraboloidSolution, brentSolution;
+    private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
 
-    private Methods currentMethod = Methods.DICHOTOMY;
+    private final ArrayList<Methods> methods = new ArrayList<>(Arrays.asList(Methods.values()));
+    private Methods currentMethod = Methods.GRADIENT;
 
     private int iterationNumber;
 
@@ -47,62 +51,67 @@ public class MainController {
             updateWindow();
         });
 
-        makeToggleGroup();
+        buttonsWithMethod = getButtonsWithMethodList();
+        initToggleButtons(buttonsWithMethod);
         calculateSolutions(DEFAULT_EPS);
-        dichotomyButton.fire();
+        gradientButton.fire();
         updateWindow();
     }
 
-    private void makeToggleGroup() {
+    private ArrayList<ButtonWithMethod> getButtonsWithMethodList() {
+        return new ArrayList<>(List.of(
+                new ButtonWithMethod(gradientButton, Methods.GRADIENT),
+                new ButtonWithMethod(steepestDescentButton, Methods.STEEPEST_DESCENT),
+                new ButtonWithMethod(conjugateButton, Methods.CONJUGATE)
+        ));
+    }
+
+
+    private void initToggleButtons(List<ButtonWithMethod> buttons) {
+        makeToggleGroup(buttons.stream().map(ButtonWithMethod::getButton).collect(Collectors.toList()));
+        updateButtonsText(buttonsWithMethod);
+    }
+
+    private void makeToggleGroup(List<ToggleButton> buttons) {
         ToggleGroup group = new ToggleGroup();
-        dichotomyButton.setToggleGroup(group);
-        goldenSectionButton.setToggleGroup(group);
-        fibonacciButton.setToggleGroup(group);
-        paraboloidButton.setToggleGroup(group);
-        brentButton.setToggleGroup(group);
+        buttons.forEach(button -> button.setToggleGroup(group));
     }
 
     private void updateWindow() {
         iterationNumberLabel.setText(Integer.toString(iterationNumber));
-        double left = getCurrentSolution().getIntervals().get(iterationNumber).getLeftBorder();
-        double right = getCurrentSolution().getIntervals().get(iterationNumber).getRightBorder();
-        double approx = getCurrentSolution().getApproximatelyMinimums().get(iterationNumber);
-        leftLabel.setText(String.format(NUMBER_FORMAT, left));
-        rightLabel.setText(String.format(NUMBER_FORMAT, right));
-        approxLabel.setText(String.format(NUMBER_FORMAT, approx));
+        //Point point = getCurrentSolution().getPoints().get(iterationNumber);
+        //x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
+        //x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
+        //approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
 
         clearChart();
-        lineChart.getData().add(functionSeries);
-        if (currentMethod.isNeedPlot()) {
-            Function <Double, Double> parabola = getCurrentParaboloidSolution().getParabolas().get(iterationNumber);
-            if (parabola == null) {
-                drawBorderPoints(left, right, approx);
-            } else {
-                drawParaboloid(parabola, interval);
-                addPointToChart(approx, parabola.apply(approx), "green");
-            }
-        } else {
-            drawBorderPoints(left, right, approx);
-        }
+
+//        lineChart.getData().add(functionSeries);
+//        if (currentMethod.isNeedPlot()) {
+//            Function <Double, Double> parabola = getCurrentParaboloidSolution().getParabolas().get(iterationNumber);
+//            if (parabola == null) {
+//                drawBorderPoints(left, right, approx);
+//            } else {
+//                drawParaboloid(parabola, interval);
+//                addPointToChart(approx, parabola.apply(approx), "green");
+//            }
+//        } else {
+//            drawBorderPoints(left, right, approx);
+//        }
     }
 
-    private void drawParaboloid(final Function<Double, Double> parabola, Interval interval) {
-        XYChart.Series<Double, Double> series = plotLineSeries(parabola, interval);
-        lineChart.getData().add(series);
-    }
-
-    private void drawBorderPoints(Double left, Double right, Double approx) {
-        addPointToChart(left, function.apply(left), "blue");
-        addPointToChart(right, function.apply(right), "blue");
-        addPointToChart(approx, function.apply(approx), "green");
-    }
+//    private void drawBorderPoints(Double left, Double right, Double approx) {
+//        addPointToChart(left, function.apply(left), "blue");
+//        addPointToChart(right, function.apply(right), "blue");
+//        addPointToChart(approx, function.apply(approx), "green");
+//    }
 
     private void addPointToChart(final double x, final double y, String color) {
-        XYChart.Series<Double, Double> series = new XYChart.Series<>();
-        plotPoint(x, y, series);
-        lineChart.getData().add(series);
-
-        series.nodeProperty().get().setStyle("-fx-stroke-width: 7; -fx-stroke: " + color);
+//        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+//        plotPoint(x, y, series);
+//        lineChart.getData().add(series);
+//
+//        series.nodeProperty().get().setStyle("-fx-stroke-width: 7; -fx-stroke: " + color);
     }
 
     private XYChart.Series<Double, Double> plotLineSeries(
@@ -128,26 +137,20 @@ public class MainController {
     }
 
     private void calculateSolutions(Double eps) {
-        dichotomySolution = new Dichotomy(function, interval, eps).getSolution();
-        goldenSectionSolution = new GoldenSection(function, interval, eps).getSolution();
-        fibonacciSolution = new Fibonacci(function, interval, eps).getSolution();
-        brentSolution = new Brent(function, interval, eps).getParaboloidSolution();
-        paraboloidSolution = new Paraboloid(function, interval, eps).getParaboloidSolution();
-
-        updateButtonsText();
+        gradientSolution = new Gradient(/* function, eps */).getSolution();
+        steepestDescentSolution = new SteepestDescent(/* function, eps */).getSolution();
+        conjugateSolution = new Conjugate(/* function, eps */).getSolution();
+        updateButtonsText(buttonsWithMethod);
     }
 
-    private void updateButtonsText() {
-        updateToggleButtonText(dichotomyButton, Methods.DICHOTOMY);
-        updateToggleButtonText(goldenSectionButton, Methods.GOLDEN_SECTION);
-        updateToggleButtonText(fibonacciButton, Methods.FIBONACCI);
-        updateToggleButtonText(paraboloidButton, Methods.PARABOLOID);
-        updateToggleButtonText(dichotomyButton, Methods.DICHOTOMY);
-        updateToggleButtonText(brentButton, Methods.BRENT);
+    private void updateButtonsText(List<ButtonWithMethod> buttonsWithMethod) {
+        buttonsWithMethod.forEach(buttonWithMethod ->
+                updateButtonText(buttonWithMethod.getButton(), buttonWithMethod.getMethod()));
     }
 
-    private void updateToggleButtonText(ToggleButton button, Methods method) {
-        button.setText(method.getLabelString() + "\n" + String.format(NUMBER_FORMAT, getMethodSolution(method).getEndPoint()));
+    private void updateButtonText(ToggleButton button, Methods method) {
+        button.setText(method.getLabelString() + "\n" +
+                String.format(NUMBER_FORMAT, function.apply(getMethodSolution(method).getEndPoint())));
     }
 
     @FXML
@@ -163,69 +166,43 @@ public class MainController {
         setupMethod(currentMethod);
     }
 
-    private Solution getMethodSolution(Methods method) {
-        Solution solution;
-        switch (method) {
-            case DICHOTOMY: solution = dichotomySolution; break;
-            case GOLDEN_SECTION: solution = goldenSectionSolution; break;
-            case FIBONACCI: solution = fibonacciSolution; break;
-            case PARABOLOID: solution = paraboloidSolution; break;
-            case BRENT: solution = brentSolution; break;
-            default:
-                throw new IllegalStateException("Unexpected method: " + currentMethod);
-        }
+    private GradientSolution getMethodSolution(Methods method) {
+        GradientSolution solution;
+//        switch (method) {
+//            case GRADIENT: solution = gradientSolution; break;
+//            case STEEPEST_DESCENT: solution = steepestDescentSolution; break;
+//            case CONJUGATE: solution = conjugateSolution; break;
+//            default:
+//                throw new IllegalStateException("Unexpected method: " + currentMethod);
+//        }
+        solution = new GradientSolution(List.of(new Point(List.of(1.0, 1.0)), new Point((List.of(2.0, 2.0)))));
         return solution;
     }
 
-    private ParaboloidSolution getMethodParaboloidSolution(Methods method) {
-        ParaboloidSolution solution;
-        switch (method) {
-            case PARABOLOID: solution = paraboloidSolution; break;
-            case BRENT: solution = brentSolution; break;
-            default:
-                throw new IllegalStateException("Unexpected method: " + currentMethod);
-        }
-        return solution;
-    }
-
-    private Solution getCurrentSolution() {
+    private GradientSolution getCurrentSolution() {
         return getMethodSolution(currentMethod);
-    }
-
-    private ParaboloidSolution getCurrentParaboloidSolution() {
-        return getMethodParaboloidSolution(currentMethod);
     }
 
     private void setupMethod(Methods chosenMethod) {
         currentMethod = chosenMethod;
         iterationSlider.setValue(0);
-        iterationSlider.setMax(getCurrentSolution().getIntervals().size() - 1);
+        iterationSlider.setMax(getCurrentSolution().getPoints().size() - 1);
         methodName.setText(currentMethod.getLabelString());
         updateWindow();
     }
 
     @FXML
-    private void clickDichotomy() {
-        setupMethod(Methods.DICHOTOMY);
+    private void clickGradient() {
+        setupMethod(Methods.GRADIENT);
     }
 
     @FXML
-    private void clickGoldenSection() {
-        setupMethod(Methods.GOLDEN_SECTION);
+    private void clickSteepestDescent() {
+        setupMethod(Methods.STEEPEST_DESCENT);
     }
 
     @FXML
-    private void clickFibonacci() {
-        setupMethod(Methods.FIBONACCI);
-    }
-
-    @FXML
-    private void clickParaboloid() {
-        setupMethod(Methods.PARABOLOID);
-    }
-
-    @FXML
-    private void clickBrent() {
-        setupMethod(Methods.BRENT);
+    private void clickConjugate() {
+        setupMethod(Methods.CONJUGATE);
     }
 }

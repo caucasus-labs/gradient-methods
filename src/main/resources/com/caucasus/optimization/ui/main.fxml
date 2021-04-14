@@ -48,13 +48,13 @@
             </yAxis>
         </LineChart>
 
-        <Label text="left" layoutX="300" layoutY="540"/>
-        <Label text="approx" layoutX="370" layoutY="540"/>
-        <Label text="right" layoutX="450" layoutY="540"/>
+        <Label text="x1" layoutX="300" layoutY="540"/>
+        <Label text="x2" layoutX="370" layoutY="540"/>
+        <Label text="approx" layoutX="450" layoutY="540"/>
 
-        <Label fx:id="leftLabel" text="0" layoutX="300" layoutY="560"/>
-        <Label fx:id="approxLabel" text="0" layoutX="370" layoutY="560"/>
-        <Label fx:id="rightLabel" text="0" layoutX="450" layoutY="560"/>
+        <Label fx:id="x1Label" text="0" layoutX="300" layoutY="560"/>
+        <Label fx:id="x2Label" text="0" layoutX="370" layoutY="560"/>
+        <Label fx:id="approxLabel" text="0" layoutX="450" layoutY="560"/>
 
         <Label text="iteration" layoutX="150" layoutY="617"/>
         <Label fx:id="iterationNumberLabel" text = "0" layoutX="200" layoutY="617"/>
@@ -69,18 +69,12 @@
 
     <HBox prefHeight="75.0" prefWidth="800" StackPane.alignment="BOTTOM_CENTER" maxHeight="75.0">
         <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
-                HBox.hgrow="ALWAYS" onAction="#clickDichotomy" fx:id="dichotomyButton" textAlignment="CENTER"/>
+                HBox.hgrow="ALWAYS" onAction="#clickGradient" fx:id="gradientButton" textAlignment="CENTER"/>
 
         <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
-                HBox.hgrow="ALWAYS" onAction="#clickGoldenSection" fx:id="goldenSectionButton" textAlignment="CENTER"/>
+                HBox.hgrow="ALWAYS" onAction="#clickSteepestDescent" fx:id="steepestDescentButton" textAlignment="CENTER"/>
 
         <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
-                HBox.hgrow="ALWAYS" onAction="#clickFibonacci" fx:id="fibonacciButton" textAlignment="CENTER"/>
-
-        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
-                HBox.hgrow="ALWAYS" onAction="#clickParaboloid" fx:id="paraboloidButton" textAlignment="CENTER"/>
-
-        <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"
-                HBox.hgrow="ALWAYS" onAction="#clickBrent" fx:id="brentButton" textAlignment="CENTER"/>
+                HBox.hgrow="ALWAYS" onAction="#clickConjugate" fx:id="conjugateButton" textAlignment="CENTER"/>
     </HBox>
 </StackPane>
