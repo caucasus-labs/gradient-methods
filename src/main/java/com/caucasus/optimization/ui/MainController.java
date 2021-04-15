@@ -36,6 +36,7 @@ public class MainController {
     final Double DEFAULT_EPS = 0.00001;
     final int PLOT_STEP_COUNT = 100;
     final String NUMBER_FORMAT = "%.7f";
+    final Domain domain = new Domain(new Vector(List.of(-100., -100.)),new Vector(List.of(100., 100.)));
     //final private XYChart.Series<Double, Double> functionSeries = plotLineSeries(function, interval);
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
@@ -137,9 +138,9 @@ public class MainController {
     }
 
     private void calculateSolutions(Double eps) {
-        gradientSolution = new Gradient(function, eps).getSolution();
-        steepestDescentSolution = new SteepestDescent(function, eps).getSolution();
-        conjugateSolution = new Conjugate(function, eps).getSolution();
+        gradientSolution = new Gradient(function, eps, domain).getSolution();
+        steepestDescentSolution = new SteepestDescent(function, eps, domain).getSolution();
+        conjugateSolution = new Conjugate(function, eps, domain).getSolution();
         updateButtonsText(buttonsWithMethod);
     }
 
@@ -175,7 +176,7 @@ public class MainController {
 //            default:
 //                throw new IllegalStateException("Unexpected method: " + currentMethod);
 //        }
-        solution = new GradientSolution(List.of(new Vector(List.of(1.0, 1.0)), new Vector((List.of(2.0, 2.0)))));
+        solution = new GradientSolution(List.of(new Vector(List.of(1.0, 1.0)), new Vector((List.of(2.0, 2.0)))), List.of(1., 1.));
         return solution;
     }
 

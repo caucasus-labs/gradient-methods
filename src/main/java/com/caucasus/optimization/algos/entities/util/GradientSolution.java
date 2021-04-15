@@ -4,9 +4,11 @@ import java.util.List;
 
 public class GradientSolution {
     private final List<Vector> vectors;
+    private final List<Double> values;
 
-    public GradientSolution(List<Vector> vectors) {
+    public GradientSolution(List<Vector> vectors, List<Double> values) {
         this.vectors = vectors;
+        this.values = values;
     }
 
     public List<Vector> getPoints() {

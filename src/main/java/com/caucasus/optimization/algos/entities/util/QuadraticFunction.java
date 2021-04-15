@@ -21,7 +21,7 @@ public class QuadraticFunction {
 
     }
 
-    public Vector gradient(Vector x) {
+    public Vector getGradient(Vector x) {
         return A.mul(x).add(b);
     }
 
@@ -29,9 +29,20 @@ public class QuadraticFunction {
         return b.size();
     }
 
-    public Double apply(Vector x) {
+    public double apply(Vector x) {
         return A.mul(x).scalar(x) * 0.5 + b.scalar(x) + c;
     }
 
+    public Vector shiftVector(Vector x, Vector gradient, double learningRate) {
+        return x.add(gradient.mul(-learningRate));
+    }
+
+    public double getBeta(Vector gradient, Vector antiGradient) {
+        return A.mul(gradient).scalar(antiGradient) / A.mul(antiGradient).scalar(antiGradient);
+    }
+
+    public double getLearningRate(Vector gradient, Vector antiGradient) {
+        return - gradient.scalar(antiGradient) / (A.mul(antiGradient).scalar(antiGradient));
+    }
 
 }
