@@ -8,4 +8,12 @@ public class Domain {
         this.lower = lower;
         this.upper = upper;
     }
+
+    public Vector getLower() {
+        return lower;
+    }
+
+    public Vector getUpper() {
+        return upper;
+    }
 }
