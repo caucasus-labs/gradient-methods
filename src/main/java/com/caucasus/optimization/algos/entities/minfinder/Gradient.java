@@ -33,7 +33,7 @@ public class Gradient implements GradientMethod {
             while (true){
                 Vector newPoint = function.shiftVector(points.get(iterations), gradient, learningRate);
                 double newValue = function.apply(newPoint);
-                if (newValue < values.get(iterations)) {
+                if (newValue - values.get(iterations) < eps) {
                     points.add(newPoint);
                     values.add(newValue);
                     iterations++;
@@ -42,9 +42,9 @@ public class Gradient implements GradientMethod {
                     learningRate *= 0.5;
                 }
             }
-        } while (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
+        } while (iterations < 10000 && (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
         points.get(iterations).dist(points.get(iterations - 1)) > eps ||
-        gradient.length() > eps);
+        gradient.length() > eps));
         return new GradientSolution(points, values);
     }
 
