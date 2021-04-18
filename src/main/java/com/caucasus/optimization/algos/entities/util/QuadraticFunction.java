@@ -1,6 +1,5 @@
 package com.caucasus.optimization.algos.entities.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,12 +8,14 @@ public class QuadraticFunction {
     private final Matrix A;
     private final Vector b;
     private final Double c;
+
     public QuadraticFunction(Matrix a, Vector b, Double c) {
         A = a;
         this.b = b;
         this.c = c;
     }
-    public QuadraticFunction(List<List<Double>> a , List<Double> b, double c) {
+
+    public QuadraticFunction(List<List<Double>> a, List<Double> b, double c) {
         A = new Matrix(a.stream().map(Vector::new).collect(Collectors.toList()));
         this.b = new Vector(b);
         this.c = c;
@@ -42,7 +43,6 @@ public class QuadraticFunction {
     }
 
     public double getLearningRate(Vector gradient, Vector antiGradient) {
-        return - gradient.scalar(antiGradient) / (A.mul(antiGradient).scalar(antiGradient));
+        return -gradient.scalar(antiGradient) / (A.mul(antiGradient).scalar(antiGradient));
     }
-
 }

@@ -1,4 +1,4 @@
-package com.caucasus.optimization;
+package com.caucasus.optimization.statistics.first;
 
 import com.caucasus.optimization.algos.entities.minfinder.*;
 import com.caucasus.optimization.algos.entities.util.Interval;

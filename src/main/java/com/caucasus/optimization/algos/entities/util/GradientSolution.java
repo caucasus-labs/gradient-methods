@@ -19,4 +19,7 @@ public class GradientSolution {
         return vectors.get(vectors.size() - 1);
     }
 
+    public int getIterations() {
+        return vectors.size();
+    }
 }
