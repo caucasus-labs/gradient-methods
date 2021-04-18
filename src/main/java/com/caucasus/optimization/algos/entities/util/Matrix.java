@@ -12,7 +12,7 @@ public class Matrix {
 
     public Vector mul(Vector vector) {
         List<Double> res = new ArrayList<>();
-        for (Vector v: vectors) {
+        for (Vector v : vectors) {
             res.add(v.scalar(vector));
         }
         return new Vector(res);
