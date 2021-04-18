@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,13 +57,14 @@ public class MethodToSpeedTester {
                 System.err.println("Cannot create parent directories for output file: " + e.getMessage());
             }
         }
-        try (final BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-            Locale.setDefault(Locale.US);
+//        try (final BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_16)) {
+        try (final BufferedWriter writer = Files.newBufferedWriter(outputFile)) {
             try {
                 final List<String> names = List.of("Метод Брента", "Метод парабол", "Метод Фибоначчи",
                         "Метод Дихотомии", "Метод Золотого сечения");
-                for (int i = 0; i < 5; i++) {
-                    writer.write(String.format("%s & %d \\\\%n%n", names.get(i), iterations.get(i)));
+                for (int i = 0; i < Math.min(names.size(), iterations.size()); i++) {
+                    writer.write(String.format("%s & %d \\\\%n%n",
+                            Arrays.toString(names.get(i).getBytes(StandardCharsets.UTF_8)), iterations.get(i)));
                 }
             } catch (final IOException e) {
                 System.err.println("Error printing to file " + outputFile + ": " + e.getMessage());
