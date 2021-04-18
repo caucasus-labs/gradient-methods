@@ -22,15 +22,15 @@ import java.util.Locale;
 public class MethodToSpeedTester {
     public static void main(String[] args) {
         // TODO: launch quadratic func at 5 different methods for each gradient method
-//        final double eps = 1e-5;
+        final double eps = 1e-5;
 //        final Domain domain = new Domain();
 //        QuadraticFunction function = new QuadraticFunction();
 //        writeStat("steepest_method_to_speed", getSteepestStat());
     }
 
     private static List<Integer> getSteepestStat(final QuadraticFunction function,
-                                         final Domain domain,
-                                         final double eps) {
+                                                 final Domain domain,
+                                                 final double eps) {
         // TODO: launch steepest method with:
         //  brent, parabola, fibonacci, dichotomy, gold section and
         //  push getIterations to list 
@@ -45,6 +45,13 @@ public class MethodToSpeedTester {
         } catch (final InvalidPathException e) {
             System.err.println("Invalid path: " + e.getMessage());
             return;
+        }
+        if (outputFile.getParent() != null) {
+            try {
+                Files.createDirectories(outputFile.getParent());
+            } catch (final IOException e) {
+                System.err.println("Cannot create parent directories for output file: " + e.getMessage());
+            }
         }
         try (final BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
             Locale.setDefault(Locale.US);
