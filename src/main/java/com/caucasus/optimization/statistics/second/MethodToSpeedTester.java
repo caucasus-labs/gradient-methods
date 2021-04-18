@@ -26,7 +26,7 @@ public class MethodToSpeedTester {
         final double eps = 1e-5;
         Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
         QuadraticFunction function = new QuadraticFunction(List.of(List.of(2., 0.), List.of(0., 3.)), List.of(30., -5.), 0);
-        writeStat("steepest_method_to_speed", getSteepestStat(function, domain, eps));
+        writeStat("steepestMethod", getSteepestStat(function, domain, eps));
     }
 
     private static List<Integer> getSteepestStat(final QuadraticFunction function,
@@ -57,14 +57,12 @@ public class MethodToSpeedTester {
                 System.err.println("Cannot create parent directories for output file: " + e.getMessage());
             }
         }
-//        try (final BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_16)) {
         try (final BufferedWriter writer = Files.newBufferedWriter(outputFile)) {
             try {
-                final List<String> names = List.of("Метод Брента", "Метод парабол", "Метод Фибоначчи",
-                        "Метод Дихотомии", "Метод Золотого сечения");
+                final List<String> names = List.of("Brent", "Parabola", "Fibonacci",
+                        "Dichotomy", "Golden section");
                 for (int i = 0; i < Math.min(names.size(), iterations.size()); i++) {
-                    writer.write(String.format("%s & %d \\\\%n%n",
-                            Arrays.toString(names.get(i).getBytes(StandardCharsets.UTF_8)), iterations.get(i)));
+                    writer.write(String.format("%s & %d \\\\%n%n", names.get(i), iterations.get(i)));
                 }
             } catch (final IOException e) {
                 System.err.println("Error printing to file " + outputFile + ": " + e.getMessage());

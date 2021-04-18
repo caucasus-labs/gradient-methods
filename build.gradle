@@ -25,4 +25,5 @@ dependencies {
 //    compile 'org.openjfx:javafx-graphics:11.0.2:linux'
 }
 
-mainClassName = 'com.caucasus.optimization.ui.Main'
+mainClassName = 'com.caucasus.optimization.statistics.second.MethodToSteepTester'
+//mainClassName = 'com.caucasus.optimization.ui.Main'
