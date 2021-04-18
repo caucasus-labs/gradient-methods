@@ -1,7 +1,7 @@
 package com.caucasus.optimization.statistics.second;
 
-import com.caucasus.optimization.algos.entities.util.Domain;
-import com.caucasus.optimization.algos.entities.util.QuadraticFunction;
+import com.caucasus.optimization.algos.entities.minfinder.SteepestDescent;
+import com.caucasus.optimization.algos.entities.util.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,18 +23,21 @@ public class MethodToSpeedTester {
     public static void main(String[] args) {
         // TODO: launch quadratic func at 5 different methods for each gradient method
         final double eps = 1e-5;
-//        final Domain domain = new Domain();
-//        QuadraticFunction function = new QuadraticFunction();
-//        writeStat("steepest_method_to_speed", getSteepestStat());
+        Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
+        QuadraticFunction function = new QuadraticFunction(List.of(List.of(2., 0.), List.of(0., 3.)), List.of(30., -5.), 0);
+        writeStat("steepest_method_to_speed", getSteepestStat(function, domain, eps));
     }
 
     private static List<Integer> getSteepestStat(final QuadraticFunction function,
                                                  final Domain domain,
                                                  final double eps) {
+        GradientSolution fS = new SteepestDescent(function, eps, domain, Method.FIBONACCI).getSolution();
+        GradientSolution dS = new SteepestDescent(function, eps, domain, Method.DICHOTOMY).getSolution();
+        GradientSolution gS = new SteepestDescent(function, eps, domain, Method.GOLDEN_SECTION).getSolution();
         // TODO: launch steepest method with:
         //  brent, parabola, fibonacci, dichotomy, gold section and
         //  push getIterations to list 
-        return List.of();
+        return List.of(fS.getIterations(), dS.getIterations(), gS.getIterations());
     }
 
     private static void writeStat(final String filename, final List<Integer> iterations) {
