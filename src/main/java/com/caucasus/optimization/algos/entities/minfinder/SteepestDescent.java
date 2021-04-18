@@ -2,7 +2,6 @@ package com.caucasus.optimization.algos.entities.minfinder;
 
 import com.caucasus.optimization.algos.entities.util.*;
 import com.caucasus.optimization.algos.interfaces.GradientMethod;
-import com.caucasus.optimization.algos.interfaces.IntervalMinFinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +10,13 @@ public class SteepestDescent implements GradientMethod {
     private final QuadraticFunction function;
     private final Double eps;
     private final Domain domain;
+    private final Method method;
 
-    public SteepestDescent(QuadraticFunction function, Double eps, Domain domain) {
+    public SteepestDescent(QuadraticFunction function, Double eps, Domain domain, Method method) {
         this.function = function;
         this.eps = eps;
         this.domain = domain;
+        this.method = method;
     }
 
     @Override
@@ -31,9 +32,24 @@ public class SteepestDescent implements GradientMethod {
             final Vector pass = function.getGradient(points.get(iterations));
             gradient = pass;
             final int pos = iterations;
-            IntervalMinFinder minFinder = new GoldenSection( (Double lR)-> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps);
-            Solution solution = minFinder.getSolution();
-            points.add(function.shiftVector(points.get(iterations), gradient, solution.getEndPoint()));
+            double solution;
+            switch (method) {
+                case FIBONACCI:
+                    solution = new Fibonacci((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
+                    break;
+                case DICHOTOMY:
+                    solution = new Dichotomy((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
+                    break;
+                case BRENT:
+                    solution = new Brent((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getParaboloidSolution().getEndPoint();
+                    break;
+                case PARABOLOID:
+                    solution = new Paraboloid((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getParaboloidSolution().getEndPoint();
+                    break;
+                default:
+                    solution = new GoldenSection((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
+            }
+            points.add(function.shiftVector(points.get(iterations), gradient, solution));
             iterations++;
             values.add(function.apply(points.get(iterations)));
         } while (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
