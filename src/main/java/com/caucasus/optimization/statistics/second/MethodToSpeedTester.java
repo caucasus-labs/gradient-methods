@@ -6,14 +6,11 @@ import com.caucasus.optimization.algos.entities.util.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Class to retrieve one-dim minimizer function to iterations statistics.
