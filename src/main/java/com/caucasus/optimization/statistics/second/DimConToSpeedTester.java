@@ -3,12 +3,20 @@ package com.caucasus.optimization.statistics.second;
 import com.caucasus.optimization.algos.entities.minfinder.Conjugate;
 import com.caucasus.optimization.algos.entities.minfinder.Gradient;
 import com.caucasus.optimization.algos.entities.minfinder.SteepestDescent;
+import com.caucasus.optimization.algos.entities.util.Domain;
 import com.caucasus.optimization.algos.entities.util.QuadraticFunction;
+import com.caucasus.optimization.algos.entities.util.Vector;
+import com.caucasus.optimization.algos.interfaces.GradientMethod;
 import com.caucasus.optimization.statistics.ChartWriter;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.DoubleStream;
+
 
 /**
  * Class to retrieve iterations to function dimension and conditionality number to iterations statistics.
@@ -54,19 +62,19 @@ public class DimConToSpeedTester {
                      conditionalNumber += CONDITIONAL_STEP) {
                     int iterationsCount = 0;
                     for (int test = 0; test < TESTS_AMOUNT; test++) {
-//                        final QuadraticFunction function = generateFunction(dimension, conditionalNumber);
-//                        final Domain domain = new Domain(); // TODO: как получить его?
-//                        final double eps = 0.1;             // TODO: откуда брать?
-//                        try {
-//                            GradientMethod method = (GradientMethod) methodType
-//                                    .getDeclaredConstructor(QuadraticFunction.class, Double.class, Domain.class)
-//                                    .newInstance(function, eps, domain);
-//                            iterationsCount += method.getSolution().getIterations();
-//                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-//                                NoSuchMethodException e) {
-//                            System.err.println("Couldn't create instance of " +
-//                                    methodType.getSimpleName() + ": " + e.getMessage());
-//                        }
+                        final QuadraticFunction function = generateFunction(dimension, conditionalNumber);
+                        final Domain domain = new Domain(new Vector(new ArrayList<>(Collections.nCopies(dimension, -100.))), new Vector(new ArrayList<>(Collections.nCopies(dimension, 100.))));
+                        final double eps = 1e-6;
+                        try {
+                            GradientMethod method = (GradientMethod) methodType
+                                    .getDeclaredConstructor(QuadraticFunction.class, Double.class, Domain.class)
+                                    .newInstance(function, eps, domain);
+                            iterationsCount += method.getSolution().getIterations();
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                                NoSuchMethodException e) {
+                            System.err.println("Couldn't create instance of " +
+                                    methodType.getSimpleName() + ": " + e.getMessage());
+                        }
                     }
                     iterationsToK.add(new ChartPoint(conditionalNumber, (double) iterationsCount / TESTS_AMOUNT));
                 }
@@ -83,12 +91,14 @@ public class DimConToSpeedTester {
     }
 
     private static QuadraticFunction generateFunction(int dimension, int conditionalNumber) {
-        // TODO: generate main diagonal only, others should be zero;
-        //  numbers should be in ascending order
-//        double startValue = random...
-//        double endValue = conditionalNumber * startValue;
-
-        return null;
+        Random random = new Random();
+        DoubleStream ds = random.doubles(dimension, 1, conditionalNumber);
+        double[] list = ds.sorted().toArray();
+        List<List<Double>> a = new ArrayList<>();
+        for (int i = 0; i < list.length; i++) {
+            a.add(Collections.singletonList(new ArrayList<>(Collections.nCopies(dimension, 0.)).set(i, list[i])));
+        }
+        return new QuadraticFunction(a, new ArrayList<>(Collections.nCopies(dimension, 0.)), 0.);
     }
 
 }
