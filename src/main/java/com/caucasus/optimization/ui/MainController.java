@@ -3,7 +3,7 @@ package com.caucasus.optimization.ui;
 import com.caucasus.optimization.algos.entities.minfinder.*;
 import com.caucasus.optimization.algos.entities.util.*;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
@@ -24,7 +24,7 @@ public class MainController {
     @FXML
     private Label x1Label, x2Label, approxLabel;
     @FXML
-    private LineChart<Double, Double> lineChart;
+    private ScatterChart<Double, Double> scatterChart;
     @FXML
     private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
 
@@ -33,8 +33,10 @@ public class MainController {
     final QuadraticFunction function = new QuadraticFunction(List.of(2., 3.), List.of(-30., 10.), 0);
     final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
 
-    final Double DEFAULT_EPS = 0.00001;
-    final int PLOT_STEP_COUNT = 100;
+    final Double DEFAULT_EPS = 1e-5;
+    final Double DEFAULT_FAST_EPS = 1e-3;
+    final int PLOT_STEP_COUNT = 1000;
+    final int LEVEL_LINE_COUNT = 10;
     final String NUMBER_FORMAT = "%.7f";
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
@@ -55,6 +57,33 @@ public class MainController {
 
         gradientButton.fire();
         updateWindow();
+        drawFunctionLevelLines(function, 10.);
+    }
+
+    private void drawFunctionLevelLines(QuadraticFunction function, Double levelLineStep) {
+        double approxMinimum = function.apply(getCurrentSolution().getEndPoint());
+        boolean levelExist = true;
+
+        for (Double level = approxMinimum; levelExist; level += levelLineStep) {
+            levelExist = drawFunctionLevelLine(function, level);
+        }
+    }
+
+    private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
+        double plotStep = (domain.getUpper().get(0) - domain.getLower().get(0)) / PLOT_STEP_COUNT;
+        boolean pointsExists = false;
+        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+        for (Double x1 = domain.getLower().get(0); x1 <= domain.getUpper().get(0); x1 += plotStep) {
+            for (Double x2 = domain.getLower().get(1); x2 <= domain.getUpper().get(1); x2 += plotStep) {
+                if (Math.abs(function.apply(new Vector(List.of(x1, x2))) - level) <= 1e-3) {
+                    plotPoint(x1, x2, series);
+                    pointsExists = true;
+                }
+            }
+        }
+        plotPoint(1., 1., series);
+        scatterChart.getData().add(series);
+        return pointsExists;
     }
 
     private ArrayList<ButtonWithMethod> getButtonsWithMethodList() {
@@ -78,12 +107,13 @@ public class MainController {
 
     private void updateWindow() {
         iterationNumberLabel.setText(Integer.toString(iterationNumber));
-        //Point point = getCurrentSolution().getPoints().get(iterationNumber);
-        //x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
-        //x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
-        //approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
+        Vector point = getCurrentSolution().getPoints().get(iterationNumber);
+        x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
+        x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
+        approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
 
-        clearChart();
+
+//        clearChart();
 
 //        lineChart.getData().add(functionSeries);
 //        if (currentMethod.isNeedPlot()) {
@@ -132,14 +162,13 @@ public class MainController {
     }
 
     public void clearChart() {
-        lineChart.getData().clear();
+        scatterChart.getData().clear();
     }
 
     private void calculateSolutions(Double eps) {
         gradientSolution = new Gradient(function, eps, domain).getSolution();
         steepestDescentSolution = new SteepestDescent(function, eps, domain).getSolution();
         conjugateSolution = new Conjugate(function, eps, domain).getSolution();
-//        updateButtonsText(buttonsWithMethod);
     }
 
     private void updateButtonsText(List<ButtonWithMethod> buttonsWithMethod) {

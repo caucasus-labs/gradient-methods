@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.ScatterChart?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<?import java.lang.Double?>
 <?import javafx.scene.text.Font?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
+<?import java.lang.Double?>
 <StackPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.caucasus.optimization.ui.MainController">
     <fx:define>
@@ -38,15 +37,15 @@
 
         <Button text = "Calculate" onAction="#clickCalculate" AnchorPane.leftAnchor="500" prefHeight="50"/>
 
-        <LineChart fx:id="lineChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
-                   createSymbols = "false" legendVisible="false">
+        <ScatterChart fx:id="scatterChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
+                  legendVisible="false">
             <xAxis>
                 <NumberAxis upperBound="1"/>
             </xAxis>
             <yAxis>
                 <NumberAxis upperBound="30"/>
             </yAxis>
-        </LineChart>
+        </ScatterChart>
 
         <Label text="x1" layoutX="300" layoutY="540"/>
         <Label text="x2" layoutX="370" layoutY="540"/>
