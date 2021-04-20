@@ -13,7 +13,7 @@ public class SteepestDescent implements GradientMethod {
     private final Method method;
 
     public SteepestDescent(QuadraticFunction function, Double eps, Domain domain) {
-        this(function, eps, domain, Method.BRENT);
+        this(function, eps, domain, Method.GOLDEN_SECTION);
     }
 
     public SteepestDescent(QuadraticFunction function, Double eps, Domain domain, Method method) {

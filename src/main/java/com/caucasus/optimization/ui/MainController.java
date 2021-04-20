@@ -8,7 +8,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,16 +30,15 @@ public class MainController {
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction(List.of(64., 64.), List.of(-10., 30.), 13.);
-    final Interval interval = new Interval(0, 1);
+    final QuadraticFunction function = new QuadraticFunction(List.of(2., 3.), List.of(-30., 10.), 0);
+    final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
+
     final Double DEFAULT_EPS = 0.00001;
     final int PLOT_STEP_COUNT = 100;
     final String NUMBER_FORMAT = "%.7f";
-    //final private XYChart.Series<Double, Double> functionSeries = plotLineSeries(function, interval);
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
 
-    private final ArrayList<Methods> methods = new ArrayList<>(Arrays.asList(Methods.values()));
     private Methods currentMethod = Methods.GRADIENT;
 
     private int iterationNumber;
@@ -51,9 +49,10 @@ public class MainController {
             updateWindow();
         });
 
+        calculateSolutions(DEFAULT_EPS);
         buttonsWithMethod = getButtonsWithMethodList();
         initToggleButtons(buttonsWithMethod);
-        calculateSolutions(DEFAULT_EPS);
+
         gradientButton.fire();
         updateWindow();
     }
@@ -137,10 +136,10 @@ public class MainController {
     }
 
     private void calculateSolutions(Double eps) {
-//        gradientSolution = new Gradient(function, eps).getSolution();
-//        steepestDescentSolution = new SteepestDescent(function, eps).getSolution();
-//        conjugateSolution = new Conjugate(function, eps).getSolution();
-        updateButtonsText(buttonsWithMethod);
+        gradientSolution = new Gradient(function, eps, domain).getSolution();
+        steepestDescentSolution = new SteepestDescent(function, eps, domain).getSolution();
+        conjugateSolution = new Conjugate(function, eps, domain).getSolution();
+//        updateButtonsText(buttonsWithMethod);
     }
 
     private void updateButtonsText(List<ButtonWithMethod> buttonsWithMethod) {
@@ -167,15 +166,14 @@ public class MainController {
     }
 
     private GradientSolution getMethodSolution(Methods method) {
-        GradientSolution solution = null;
-//        switch (method) {
-//            case GRADIENT: solution = gradientSolution; break;
-//            case STEEPEST_DESCENT: solution = steepestDescentSolution; break;
-//            case CONJUGATE: solution = conjugateSolution; break;
-//            default:
-//                throw new IllegalStateException("Unexpected method: " + currentMethod);
-//        }
-//        solution = new GradientSolution(List.of(new Vector(List.of(1.0, 1.0)), new Vector((List.of(2.0, 2.0)))));
+        GradientSolution solution;
+        switch (method) {
+            case GRADIENT: solution = gradientSolution; break;
+            case STEEPEST_DESCENT: solution = steepestDescentSolution; break;
+            case CONJUGATE: solution = conjugateSolution; break;
+            default:
+                throw new IllegalStateException("Unexpected method: " + currentMethod);
+        }
         return solution;
     }
 
