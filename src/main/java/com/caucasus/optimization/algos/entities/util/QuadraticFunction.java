@@ -15,8 +15,8 @@ public class QuadraticFunction {
         this.c = c;
     }
 
-    public QuadraticFunction(List<List<Double>> a, List<Double> b, double c) {
-        A = new Matrix(a.stream().map(Vector::new).collect(Collectors.toList()));
+    public QuadraticFunction(List<Double> a, List<Double> b, double c) {
+        A = new Matrix(a);
         this.b = new Vector(b);
         this.c = c;
 

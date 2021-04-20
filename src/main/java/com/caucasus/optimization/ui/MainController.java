@@ -31,7 +31,7 @@ public class MainController {
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(64., 0.)), List.of(-10., 30.), 13.);
+    final QuadraticFunction function = new QuadraticFunction(List.of(64., 64.), List.of(-10., 30.), 13.);
     final Interval interval = new Interval(0, 1);
     final Double DEFAULT_EPS = 0.00001;
     final int PLOT_STEP_COUNT = 100;

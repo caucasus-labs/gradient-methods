@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Matrix {
-    private final List<Vector> vectors;
+    private final List<Double> vectors;
 
-    public Matrix(List<Vector> vectors) {
+    public Matrix(List<Double> vectors) {
         this.vectors = vectors;
     }
 
     public Vector mul(Vector vector) {
         List<Double> res = new ArrayList<>();
-        for (Vector v : vectors) {
-            res.add(v.scalar(vector));
+        for (int i = 0; i < vector.size(); i++) {
+            res.add(vectors.get(i) * vector.get(i));
         }
         return new Vector(res);
     }
