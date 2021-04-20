@@ -27,7 +27,7 @@ public class Gradient implements GradientMethod {
         values.add(function.apply(points.get(0)));
         Vector gradient = function.getGradient(points.get(0));
         // TODO: what am I doing wrong?
-        double learningRate = 0.01;//unction.getLearningRate(gradient, gradient.mul(-1));
+        double learningRate = function.getLearningRate(gradient, gradient.mul(-1));
         if (Double.isNaN(learningRate)) {
             final String msg = "Learning rate is Nan! Points: " +
                     points.stream().map(Vector::toString).collect(Collectors.joining(", "));
@@ -35,7 +35,7 @@ public class Gradient implements GradientMethod {
         }
         do {
             if (iterations != 0) {
-                gradient = function.getGradient(points.get(0));
+                gradient = function.getGradient(points.get(iterations));
             }
             while (true) {
                 Vector newPoint = function.shiftVector(points.get(iterations), gradient, learningRate);
