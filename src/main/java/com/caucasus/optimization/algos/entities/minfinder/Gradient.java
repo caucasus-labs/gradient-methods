@@ -23,11 +23,11 @@ public class Gradient implements GradientMethod {
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();
         int iterations = 0;
-        points.add(domain.middle());
+        points.add(domain.between());
         values.add(function.apply(points.get(0)));
         Vector gradient = function.getGradient(points.get(0));
         // TODO: what am I doing wrong?
-        double learningRate = function.getLearningRate(gradient, gradient.mul(-1));
+        double learningRate = 0.01;//unction.getLearningRate(gradient, gradient.mul(-1));
         if (Double.isNaN(learningRate)) {
             final String msg = "Learning rate is Nan! Points: " +
                     points.stream().map(Vector::toString).collect(Collectors.joining(", "));

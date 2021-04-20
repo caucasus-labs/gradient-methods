@@ -25,7 +25,7 @@ public class Conjugate implements GradientMethod {
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();
         int iterations = 0;
-        points.add(domain.middle());
+        points.add(domain.between());
         values.add(function.apply(points.get(0)));
         Vector gradient = function.getGradient(points.get(0));
         Vector antiGradient = gradient.mul(-1);

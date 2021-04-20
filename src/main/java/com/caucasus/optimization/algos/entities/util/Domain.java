@@ -2,6 +2,7 @@ package com.caucasus.optimization.algos.entities.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Domain {
     private final Vector lower;
@@ -20,10 +21,11 @@ public class Domain {
         return upper;
     }
 
-    public Vector middle() {
+    public Vector between() {
+        Random random = new Random();
         List<Double> res = new ArrayList<>();
         for (int i = 0; i < lower.size(); i++) {
-            res.add((lower.get(i)  + upper.get(i)) * 0.5);
+            res.add(lower.get(i) + random.nextDouble() * (upper.get(i) - lower.get(i)));
         }
         return new Vector(res);
     }

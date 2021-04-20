@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 
 /**
@@ -97,10 +98,14 @@ public class DimConToSpeedTester {
         Random random = new Random();
         double first = random.nextDouble();
         double last = first * conditionalNumber;
-        List<List<Double>> a = random.doubles(dimension, first, last)
-                .sorted()
-                .mapToObj(List::of)
-                .collect(Collectors.toList());
+        List<List<Double>> a = new ArrayList<>();
+        List<Double> list = random.doubles(dimension, first, last)
+                .sorted().boxed().collect(Collectors.toList());
+        for (int i = 0; i < list.size(); i++) {
+            final List<Double> line = new ArrayList<>(Collections.nCopies(dimension, 0.));
+            line.set(i, list.get(i));
+            a.add(line);
+        }
         return new QuadraticFunction(a, new ArrayList<>(Collections.nCopies(dimension, 0.)), 0.);
     }
 
