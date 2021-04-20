@@ -5,6 +5,7 @@ import com.caucasus.optimization.algos.interfaces.GradientMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Gradient implements GradientMethod {
     private final QuadraticFunction function;
@@ -25,12 +26,18 @@ public class Gradient implements GradientMethod {
         points.add(domain.middle());
         values.add(function.apply(points.get(0)));
         Vector gradient = function.getGradient(points.get(0));
+        // TODO: what am I doing wrong?
         double learningRate = function.getLearningRate(gradient, gradient.mul(-1));
+        if (Double.isNaN(learningRate)) {
+            final String msg = "Learning rate is Nan! Points: " +
+                    points.stream().map(Vector::toString).collect(Collectors.joining(", "));
+            throw new RuntimeException(msg);
+        }
         do {
             if (iterations != 0) {
                 gradient = function.getGradient(points.get(0));
             }
-            while (true){
+            while (true) {
                 Vector newPoint = function.shiftVector(points.get(iterations), gradient, learningRate);
                 double newValue = function.apply(newPoint);
                 if (newValue - values.get(iterations) < eps) {
@@ -43,8 +50,8 @@ public class Gradient implements GradientMethod {
                 }
             }
         } while (iterations < 10000 && (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
-        points.get(iterations).dist(points.get(iterations - 1)) > eps ||
-        gradient.length() > eps));
+                points.get(iterations).dist(points.get(iterations - 1)) > eps ||
+                gradient.length() > eps));
         return new GradientSolution(points, values);
     }
 

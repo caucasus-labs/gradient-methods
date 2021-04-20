@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.DoubleStream;
+import java.util.stream.Collectors;
 
 
 /**
@@ -24,7 +24,7 @@ import java.util.stream.DoubleStream;
  * @author nkorzh
  */
 public class DimConToSpeedTester {
-    private final static int MAX_DIMENSION = 100_000;
+    private final static int MAX_DIMENSION = 100;
     private final static int TESTS_AMOUNT = 5;
     private final static int CONDITIONAL_STEP = 100;
     private final static int MAX_CONDITIONAL_NUMBER = 2200;
@@ -63,7 +63,10 @@ public class DimConToSpeedTester {
                     int iterationsCount = 0;
                     for (int test = 0; test < TESTS_AMOUNT; test++) {
                         final QuadraticFunction function = generateFunction(dimension, conditionalNumber);
-                        final Domain domain = new Domain(new Vector(new ArrayList<>(Collections.nCopies(dimension, -100.))), new Vector(new ArrayList<>(Collections.nCopies(dimension, 100.))));
+                        final Domain domain = new Domain(
+                                new Vector(new ArrayList<>(Collections.nCopies(dimension, -100.))),
+                                new Vector(new ArrayList<>(Collections.nCopies(dimension, 100.)))
+                        );
                         final double eps = 1e-6;
                         try {
                             GradientMethod method = (GradientMethod) methodType
@@ -92,12 +95,12 @@ public class DimConToSpeedTester {
 
     private static QuadraticFunction generateFunction(int dimension, int conditionalNumber) {
         Random random = new Random();
-        DoubleStream ds = random.doubles(dimension, 1, conditionalNumber);
-        double[] list = ds.sorted().toArray();
-        List<List<Double>> a = new ArrayList<>();
-        for (int i = 0; i < list.length; i++) {
-            a.add(Collections.singletonList(new ArrayList<>(Collections.nCopies(dimension, 0.)).set(i, list[i])));
-        }
+        double first = random.nextDouble();
+        double last = first * conditionalNumber;
+        List<List<Double>> a = random.doubles(dimension, first, last)
+                .sorted()
+                .mapToObj(List::of)
+                .collect(Collectors.toList());
         return new QuadraticFunction(a, new ArrayList<>(Collections.nCopies(dimension, 0.)), 0.);
     }
 

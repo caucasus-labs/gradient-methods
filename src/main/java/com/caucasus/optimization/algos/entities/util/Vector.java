@@ -37,7 +37,7 @@ public class Vector {
 
     public double length() {
         double res = 0;
-        for (double i: values) {
+        for (double i : values) {
             res += i * i;
         }
         return Math.sqrt(res);
@@ -49,5 +49,12 @@ public class Vector {
 
     public Double get(int i) {
         return values.get(i);
+    }
+
+    @Override
+    public String toString() {
+        return "Vector{" +
+                "values=" + values +
+                '}';
     }
 }
