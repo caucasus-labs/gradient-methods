@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 
 /**
@@ -26,8 +27,8 @@ import java.util.stream.Collectors;
 public class DimConToSpeedTester {
     private final static int MAX_DIMENSION = 10000;
     private final static int TESTS_AMOUNT = 5;
-    private final static int CONDITIONAL_STEP = 10;
-    private final static int MAX_CONDITIONAL_NUMBER = 150;
+    private final static int CONDITIONAL_STEP = 100;
+    private final static int MAX_CONDITIONAL_NUMBER = 2200;
 
     private static class ChartPoint {
         private final int condNumber;
@@ -112,8 +113,6 @@ public class DimConToSpeedTester {
             } catch (InterruptedException ignored) {
             }
         }
-
-
     }
 
     private static void writePoints(final String methodName, final String chartName, final List<ChartPoint> points) {
