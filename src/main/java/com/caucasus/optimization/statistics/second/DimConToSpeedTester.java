@@ -54,17 +54,17 @@ public class DimConToSpeedTester {
 
     public static void main(String[] args) {
         List<Class<?>> methodTypes = List.of(
-//                Conjugate.class,
-                SteepestDescent.class
+                Conjugate.class,
+//                SteepestDescent.class
 //                ,
-//                Gradient.class
+                Gradient.class
         );
         // for each method
         List<Thread> threads = new ArrayList<>();
         for (Class<?> methodType : methodTypes) {
             Thread thread = new Thread(() -> {
                 List<Thread> treads = new ArrayList<>();
-                for (int dimension = 10000; dimension <= MAX_DIMENSION; dimension *= 10) {
+                for (int dimension = 10; dimension <= MAX_DIMENSION; dimension *= 10) {
                     int dim = dimension;
                     Thread tread = new Thread(() -> {
                         List<ChartPoint> iterationsToK = new ArrayList<>();
