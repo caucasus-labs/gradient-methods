@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 
 /**
@@ -25,7 +24,7 @@ import java.util.stream.DoubleStream;
  * @author nkorzh
  */
 public class DimConToSpeedTester {
-    private final static int MAX_DIMENSION = 100;
+    private final static int MAX_DIMENSION = 10000;
     private final static int TESTS_AMOUNT = 5;
     private final static int CONDITIONAL_STEP = 100;
     private final static int MAX_CONDITIONAL_NUMBER = 2200;
@@ -56,35 +55,60 @@ public class DimConToSpeedTester {
     public static void main(String[] args) {
         List<Class<?>> methodTypes = List.of(Conjugate.class, SteepestDescent.class, Gradient.class);
         // for each method
+        List<Thread> threads = new ArrayList<>();
         for (Class<?> methodType : methodTypes) {
-            for (int dimension = 10; dimension <= MAX_DIMENSION; dimension *= 10) {
-                List<ChartPoint> iterationsToK = new ArrayList<>();
-                for (int conditionalNumber = 2; conditionalNumber <= MAX_CONDITIONAL_NUMBER;
-                     conditionalNumber += CONDITIONAL_STEP) {
-                    int iterationsCount = 0;
-                    for (int test = 0; test < TESTS_AMOUNT; test++) {
-                        final QuadraticFunction function = generateFunction(dimension, conditionalNumber);
-                        final Domain domain = new Domain(
-                                new Vector(new ArrayList<>(Collections.nCopies(dimension, -100.))),
-                                new Vector(new ArrayList<>(Collections.nCopies(dimension, 100.)))
-                        );
-                        final double eps = 1e-6;
-                        try {
-                            GradientMethod method = (GradientMethod) methodType
-                                    .getDeclaredConstructor(QuadraticFunction.class, Double.class, Domain.class)
-                                    .newInstance(function, eps, domain);
-                            iterationsCount += method.getSolution().getIterations();
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                                NoSuchMethodException e) {
-                            System.err.println("Couldn't create instance of " +
-                                    methodType.getSimpleName() + ": " + e.getMessage());
+            Thread thread = new Thread(() -> {
+                List<Thread> treads = new ArrayList<>();
+                for (int dimension = 10; dimension <= MAX_DIMENSION; dimension *= 10) {
+                    int dim = dimension;
+                    Thread tread = new Thread(() -> {
+                        List<ChartPoint> iterationsToK = new ArrayList<>();
+                        for (int conditionalNumber = 2; conditionalNumber <= MAX_CONDITIONAL_NUMBER;
+                             conditionalNumber += CONDITIONAL_STEP) {
+                            int iterationsCount = 0;
+                            for (int test = 0; test < TESTS_AMOUNT; test++) {
+                                final QuadraticFunction function = generateFunction(dim, conditionalNumber);
+                                final Domain domain = new Domain(
+                                        new Vector(new ArrayList<>(Collections.nCopies(dim, -100.))),
+                                        new Vector(new ArrayList<>(Collections.nCopies(dim, 100.)))
+                                );
+                                final double eps = 1e-6;
+                                try {
+                                    GradientMethod method = (GradientMethod) methodType
+                                            .getDeclaredConstructor(QuadraticFunction.class, Double.class, Domain.class)
+                                            .newInstance(function, eps, domain);
+                                    iterationsCount += method.getSolution().getIterations();
+                                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                                        NoSuchMethodException e) {
+                                    System.err.println("Couldn't create instance of " +
+                                            methodType.getSimpleName() + ": " + e.getMessage());
+                                }
+                            }
+                            iterationsToK.add(new ChartPoint(conditionalNumber, (double) iterationsCount / TESTS_AMOUNT));
                         }
-                    }
-                    iterationsToK.add(new ChartPoint(conditionalNumber, (double) iterationsCount / TESTS_AMOUNT));
+                        writePoints(methodType.getSimpleName().toLowerCase(), String.valueOf(dim), iterationsToK);
+                    });
+                    treads.add(tread);
+                    tread.start();
                 }
-                writePoints(methodType.getSimpleName().toLowerCase(), String.valueOf(dimension), iterationsToK);
+                for (var tha : treads) {
+                    try {
+                        tha.join();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
+        }
+        for (var tha : threads) {
+            try {
+                tha.join();
+            } catch (InterruptedException ignored) {
             }
         }
+
+
     }
 
     private static void writePoints(final String methodName, final String chartName, final List<ChartPoint> points) {
