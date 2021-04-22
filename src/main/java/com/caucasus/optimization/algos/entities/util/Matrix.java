@@ -11,7 +11,7 @@ public class Matrix {
     }
 
     public Vector mul(Vector vector) {
-        List<Double> res = new ArrayList<>();
+        List<Double> res = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             res.add(vectors.get(i) * vector.get(i));
         }

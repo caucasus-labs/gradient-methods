@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Gradient implements GradientMethod {
+public class Gradient extends AbstractGradientMethod {
     private final QuadraticFunction function;
     private final Double eps;
     private final Domain domain;
@@ -19,10 +19,15 @@ public class Gradient implements GradientMethod {
     }
 
     @Override
+    public GradientSolution getSolution(boolean saveIterations) {
+        return getSolution();
+    }
+
+    @Override
     public GradientSolution getSolution() {
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();
-        int iterations = 0;
+        iterations = 0;
         points.add(domain.between());
         values.add(function.apply(points.get(0)));
         Vector gradient = function.getGradient(points.get(0));
@@ -52,7 +57,7 @@ public class Gradient implements GradientMethod {
         } while (iterations < 10000 && (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
                 points.get(iterations).dist(points.get(iterations - 1)) > eps ||
                 gradient.length() > eps));
+        isCounted = true;
         return new GradientSolution(points, values);
     }
-
 }

@@ -1,12 +1,12 @@
 package com.caucasus.optimization.algos.entities.minfinder;
 
 import com.caucasus.optimization.algos.entities.util.*;
-import com.caucasus.optimization.algos.interfaces.GradientMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-public class SteepestDescent implements GradientMethod {
+public class SteepestDescent extends AbstractGradientMethod {
     private final QuadraticFunction function;
     private final Double eps;
     private final Domain domain;
@@ -24,41 +24,53 @@ public class SteepestDescent implements GradientMethod {
     }
 
     @Override
-    public GradientSolution getSolution() {
+    public GradientSolution getSolution(boolean saveIterations) {
+        iterations = 0;
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();
-        int iterations = 0;
-        points.add(domain.between());
-        values.add(function.apply(points.get(0)));
-        Vector gradient = function.getGradient(points.get(0));
+
+        Vector newPoint = domain.between();
+        Vector lastPoint = newPoint;
+        double newValue = function.apply(lastPoint);
+        double lastValue = newValue;
+        if (saveIterations) {
+            savePoint(newPoint, points);
+            saveValue(newValue, values);
+        }
+        Vector gradient = function.getGradient(newPoint);
         double learningRate = function.getLearningRate(gradient, gradient.mul(-1));
         do {
-            final Vector pass = function.getGradient(points.get(iterations));
+            lastPoint = newPoint;
+            lastValue = newValue;
+            final Vector pass = function.getGradient(lastPoint);
             gradient = pass;
-            final int pos = iterations;
-            double solution;
-            switch (method) {
-                case FIBONACCI:
-                    solution = new Fibonacci((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
-                    break;
-                case DICHOTOMY:
-                    solution = new Dichotomy((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
-                    break;
-                case BRENT:
-                    solution = new Brent((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getParaboloidSolution().getEndPoint();
-                    break;
-                case PARABOLOID:
-                    solution = new Paraboloid((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getParaboloidSolution().getEndPoint();
-                    break;
-                default:
-                    solution = new GoldenSection((Double lR) -> function.apply(points.get(pos).add(pass.mul(-lR))), 0., learningRate, eps).getSolution().getEndPoint();
+            final Vector xk = lastPoint;
+            final Function<Double, Double> funcToMinimize = alpha -> function.apply(xk.add(pass.mul(-alpha)));
+            double newAlpha = (switch (method) {
+                case FIBONACCI ->   new Fibonacci(funcToMinimize, 0., learningRate, eps).getSolution();
+                case DICHOTOMY ->   new Dichotomy(funcToMinimize, 0., learningRate, eps).getSolution();
+                case BRENT ->           new Brent(funcToMinimize, 0., learningRate, eps).getParaboloidSolution();
+                case PARABOLOID -> new Paraboloid(funcToMinimize, 0., learningRate, eps).getParaboloidSolution();
+                default ->      new GoldenSection(funcToMinimize, 0., learningRate, eps).getSolution();
+            }).getEndPoint();
+
+            newPoint = function.shiftVector(lastPoint, gradient, newAlpha);
+            newValue = function.apply(lastPoint);
+
+            if (saveIterations) {
+                savePoint(newPoint, points);
+                saveValue(newValue, values);
             }
-            points.add(function.shiftVector(points.get(iterations), gradient, solution));
             iterations++;
-            values.add(function.apply(points.get(iterations)));
-        } while (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
-                points.get(iterations).dist(points.get(iterations - 1)) > eps ||
+        } while (Math.abs(newValue - lastValue) > eps ||
+                newPoint.dist(lastPoint) > eps ||
                 gradient.length() > eps);
+
+        if (!saveIterations) {
+            savePoint(newPoint, points);
+            saveValue(newValue, values);
+        }
+        isCounted = true;
         return new GradientSolution(points, values);
     }
 }

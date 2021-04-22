@@ -31,7 +31,9 @@ public class QuadraticFunction {
     }
 
     public double apply(Vector x) {
-        return A.mul(x).scalar(x) * 0.5 + b.scalar(x) + c;
+        // TODO: tmp for the test
+//        return A.mul(x).scalar(x) * 0.5 + b.scalar(x) + c;
+        return A.mul(x).scalar(x) * 0.5;
     }
 
     public Vector shiftVector(Vector x, Vector gradient, double learningRate) {

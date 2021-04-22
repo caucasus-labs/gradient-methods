@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 public class DimConToSpeedTester {
     private final static int MAX_DIMENSION = 10000;
     private final static int TESTS_AMOUNT = 5;
-    private final static int CONDITIONAL_STEP = 100;
-    private final static int MAX_CONDITIONAL_NUMBER = 2200;
+    private final static int CONDITIONAL_STEP = 10;
+    private final static int MAX_CONDITIONAL_NUMBER = 150;
 
     private static class ChartPoint {
         private final int condNumber;
@@ -48,18 +48,23 @@ public class DimConToSpeedTester {
 
         @Override
         public String toString() {
-            return String.valueOf(condNumber) + " " + iterations;
+            return condNumber + " " + iterations;
         }
     }
 
     public static void main(String[] args) {
-        List<Class<?>> methodTypes = List.of(Conjugate.class, SteepestDescent.class, Gradient.class);
+        List<Class<?>> methodTypes = List.of(
+//                Conjugate.class,
+                SteepestDescent.class
+//                ,
+//                Gradient.class
+        );
         // for each method
         List<Thread> threads = new ArrayList<>();
         for (Class<?> methodType : methodTypes) {
             Thread thread = new Thread(() -> {
                 List<Thread> treads = new ArrayList<>();
-                for (int dimension = 10; dimension <= MAX_DIMENSION; dimension *= 10) {
+                for (int dimension = 10000; dimension <= MAX_DIMENSION; dimension *= 10) {
                     int dim = dimension;
                     Thread tread = new Thread(() -> {
                         List<ChartPoint> iterationsToK = new ArrayList<>();
@@ -77,7 +82,7 @@ public class DimConToSpeedTester {
                                     GradientMethod method = (GradientMethod) methodType
                                             .getDeclaredConstructor(QuadraticFunction.class, Double.class, Domain.class)
                                             .newInstance(function, eps, domain);
-                                    iterationsCount += method.getSolution().getIterations();
+                                    iterationsCount += method.getIterations(); //getSolution().getIterations();
                                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                                         NoSuchMethodException e) {
                                     System.err.println("Couldn't create instance of " +
