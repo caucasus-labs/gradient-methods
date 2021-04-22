@@ -20,6 +20,11 @@ public class Gradient extends AbstractGradientMethod {
 
     @Override
     public GradientSolution getSolution(boolean saveIterations) {
+        return getSolution();
+    }
+
+    @Override
+    public GradientSolution getSolution(boolean saveIterations) {
         iterations = 0;
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();

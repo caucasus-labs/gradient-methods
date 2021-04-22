@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 
 /**
@@ -113,6 +112,8 @@ public class DimConToSpeedTester {
             } catch (InterruptedException ignored) {
             }
         }
+
+
     }
 
     private static void writePoints(final String methodName, final String chartName, final List<ChartPoint> points) {

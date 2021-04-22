@@ -4,6 +4,7 @@ import com.caucasus.optimization.algos.entities.util.Domain;
 import com.caucasus.optimization.algos.entities.util.GradientSolution;
 import com.caucasus.optimization.algos.entities.util.QuadraticFunction;
 import com.caucasus.optimization.algos.entities.util.Vector;
+import com.caucasus.optimization.algos.interfaces.GradientMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ public class Conjugate extends AbstractGradientMethod {
         this.eps = eps;
         this.domain = domain;
     }
-
 
     @Override
     public GradientSolution getSolution(boolean saveIterations) {
