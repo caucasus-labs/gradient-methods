@@ -1,22 +1,22 @@
 package com.caucasus.optimization.algos.entities.util;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class QuadraticFunction {
-    private final Matrix A;
+    private final SymmetricMatrix A;
     private final Vector b;
     private final Double c;
 
-    public QuadraticFunction(Matrix a, Vector b, Double c) {
+    public QuadraticFunction(SymmetricMatrix a, Vector b, Double c) {
         A = a;
         this.b = b;
         this.c = c;
     }
 
     public QuadraticFunction(List<List<Double>> a, List<Double> b, double c) {
-        A = new Matrix(a.stream().map(Vector::new).collect(Collectors.toList()));
+        A = new SymmetricMatrix(a);
         this.b = new Vector(b);
         this.c = c;
 
