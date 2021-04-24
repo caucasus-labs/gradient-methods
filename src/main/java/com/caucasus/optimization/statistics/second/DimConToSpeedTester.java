@@ -134,6 +134,8 @@ public class DimConToSpeedTester {
             a.add(new ArrayList<>(Collections.nCopies(dimension, 0.)));
             a.get(i).set(i, list.get(i));
         }
+        a.get(0).set(0, first);
+        a.get(dimension - 1).set(dimension - 1, last);
         return new QuadraticFunction(a, new ArrayList<>(Collections.nCopies(dimension, 0.)), 0.);
     }
 
