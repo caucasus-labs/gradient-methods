@@ -94,6 +94,8 @@ public class MainController {
                 (x -> a11),
                 ((Double x) -> a12 * x + b1),
                 ((Double x) -> a22 * x * x + b2 * x + c - level));
+        // TODO fix return value
+        return null;
     }
 
     private List<Function<Double, Double>> quadraticEquationSolutions(
@@ -101,6 +103,8 @@ public class MainController {
             Function<Double, Double> b,
             Function<Double, Double> c) {
         Function<Double, Double> discriminant = b.andThen(x -> x * x);
+        // TODO fix return value
+        return null;
     }
 
     private ArrayList<ButtonWithMethod> getButtonsWithMethodList() {
