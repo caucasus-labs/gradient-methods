@@ -3,12 +3,11 @@ package com.caucasus.optimization.ui;
 import com.caucasus.optimization.algos.entities.minfinder.*;
 import com.caucasus.optimization.algos.entities.util.*;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,22 +24,23 @@ public class MainController {
     @FXML
     private Label x1Label, x2Label, approxLabel;
     @FXML
-    private LineChart<Double, Double> lineChart;
+    private ScatterChart<Double, Double> scatterChart;
     @FXML
     private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(64., 0.)), List.of(-10., 30.), 13.);
-    final Interval interval = new Interval(0, 1);
-    final Double DEFAULT_EPS = 0.00001;
-    final int PLOT_STEP_COUNT = 100;
+    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
+    final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
+
+    final Double DEFAULT_EPS = 1e-5;
+    final Double DEFAULT_FAST_EPS = 1e-3;
+    final int PLOT_STEP_COUNT = 1000;
+    final int LEVEL_LINE_COUNT = 10;
     final String NUMBER_FORMAT = "%.7f";
-    //final private XYChart.Series<Double, Double> functionSeries = plotLineSeries(function, interval);
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
 
-    private final ArrayList<Methods> methods = new ArrayList<>(Arrays.asList(Methods.values()));
     private Methods currentMethod = Methods.GRADIENT;
 
     private int iterationNumber;
@@ -51,11 +51,39 @@ public class MainController {
             updateWindow();
         });
 
+        calculateSolutions(DEFAULT_EPS);
         buttonsWithMethod = getButtonsWithMethodList();
         initToggleButtons(buttonsWithMethod);
-        calculateSolutions(DEFAULT_EPS);
+
         gradientButton.fire();
         updateWindow();
+        drawFunctionLevelLines(function, 10.);
+    }
+
+    private void drawFunctionLevelLines(QuadraticFunction function, Double levelLineStep) {
+        double approxMinimum = function.apply(getCurrentSolution().getEndPoint());
+        boolean levelExist = true;
+
+        for (Double level = approxMinimum; levelExist; level += levelLineStep) {
+            levelExist = drawFunctionLevelLine(function, level);
+        }
+    }
+
+    private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
+        double plotStep = (domain.getUpper().get(0) - domain.getLower().get(0)) / PLOT_STEP_COUNT;
+        boolean pointsExists = false;
+        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+        for (Double x1 = domain.getLower().get(0); x1 <= domain.getUpper().get(0); x1 += plotStep) {
+            for (Double x2 = domain.getLower().get(1); x2 <= domain.getUpper().get(1); x2 += plotStep) {
+                if (Math.abs(function.apply(new Vector(List.of(x1, x2))) - level) <= 1e-3) {
+                    plotPoint(x1, x2, series);
+                    pointsExists = true;
+                }
+            }
+        }
+        plotPoint(1., 1., series);
+        scatterChart.getData().add(series);
+        return pointsExists;
     }
 
     private ArrayList<ButtonWithMethod> getButtonsWithMethodList() {
@@ -79,12 +107,13 @@ public class MainController {
 
     private void updateWindow() {
         iterationNumberLabel.setText(Integer.toString(iterationNumber));
-        //Point point = getCurrentSolution().getPoints().get(iterationNumber);
-        //x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
-        //x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
-        //approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
+        Vector point = getCurrentSolution().getPoints().get(iterationNumber);
+        x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
+        x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
+        approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
 
-        clearChart();
+
+//        clearChart();
 
 //        lineChart.getData().add(functionSeries);
 //        if (currentMethod.isNeedPlot()) {
@@ -133,14 +162,13 @@ public class MainController {
     }
 
     public void clearChart() {
-        lineChart.getData().clear();
+        scatterChart.getData().clear();
     }
 
     private void calculateSolutions(Double eps) {
-//        gradientSolution = new Gradient(function, eps).getSolution();
-//        steepestDescentSolution = new SteepestDescent(function, eps).getSolution();
-//        conjugateSolution = new Conjugate(function, eps).getSolution();
-        updateButtonsText(buttonsWithMethod);
+        gradientSolution = new Gradient(function, eps, domain).getSolution();
+        steepestDescentSolution = new SteepestDescent(function, eps, domain).getSolution();
+        conjugateSolution = new Conjugate(function, eps, domain).getSolution();
     }
 
     private void updateButtonsText(List<ButtonWithMethod> buttonsWithMethod) {
@@ -167,16 +195,11 @@ public class MainController {
     }
 
     private GradientSolution getMethodSolution(Methods method) {
-        GradientSolution solution = null;
-//        switch (method) {
-//            case GRADIENT: solution = gradientSolution; break;
-//            case STEEPEST_DESCENT: solution = steepestDescentSolution; break;
-//            case CONJUGATE: solution = conjugateSolution; break;
-//            default:
-//                throw new IllegalStateException("Unexpected method: " + currentMethod);
-//        }
-//        solution = new GradientSolution(List.of(new Vector(List.of(1.0, 1.0)), new Vector((List.of(2.0, 2.0)))));
-        return solution;
+        return switch (method) {
+            case GRADIENT -> gradientSolution;
+            case STEEPEST_DESCENT -> steepestDescentSolution;
+            case CONJUGATE -> conjugateSolution;
+        };
     }
 
     private GradientSolution getCurrentSolution() {

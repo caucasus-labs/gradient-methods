@@ -13,13 +13,13 @@ public class Vector {
 
     public double scalar(Vector other) {
         double res = 0;
-        for (int i = 0; i < this.size(); i++) {
-            res += this.get(i) * other.get(i);
+        for (int i = 0; i < size(); i++) {
+            res += get(i) * other.get(i);
         }
         return res;
     }
 
-    public Vector mul(double d) {
+    public Vector mul(final double d) {
         return new Vector(values.stream().map(i -> i * d).collect(Collectors.toList()));
     }
 
@@ -28,9 +28,9 @@ public class Vector {
     }
 
     public Vector add(Vector other) {
-        List<Double> res = new ArrayList<>();
-        for (int i = 0; i < this.size(); i++) {
-            res.add(this.get(i) + other.get(i));
+        List<Double> res = new ArrayList<>(size());
+        for (int i = 0; i < size(); i++) {
+            res.add(get(i) + other.get(i));
         }
         return new Vector(res);
     }

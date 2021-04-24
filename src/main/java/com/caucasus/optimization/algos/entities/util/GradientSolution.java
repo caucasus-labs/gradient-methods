@@ -22,4 +22,8 @@ public class GradientSolution {
     public int getIterations() {
         return vectors.size();
     }
+
+    public List<Double> getValues() {
+        return values;
+    }
 }

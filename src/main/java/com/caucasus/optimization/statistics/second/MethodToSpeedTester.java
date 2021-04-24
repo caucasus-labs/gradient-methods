@@ -22,7 +22,7 @@ public class MethodToSpeedTester {
         // TODO: launch quadratic func at 5 different methods for each gradient method
         final double eps = 1e-5;
         Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
-        QuadraticFunction function = new QuadraticFunction(List.of(List.of(2., 0.), List.of(0., 3.)), List.of(30., -5.), 0);
+        QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
         writeStat("steepestMethod", getSteepestStat(function, domain, eps));
     }
 

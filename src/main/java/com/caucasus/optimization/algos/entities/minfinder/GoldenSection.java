@@ -65,9 +65,11 @@ public class GoldenSection extends AbstractIntervalMinFinder {
                 f2 = evaluateFunction(x2);
             }
             nthEps *= TAU;
-            intervals.add(new Interval(leftBorder, rightBorder));
-            approximatelyMinimums.add((leftBorder + rightBorder) * 0.5);
+            // TODO: tmp!
+//            intervals.add(new Interval(leftBorder, rightBorder));
+//            approximatelyMinimums.add((leftBorder + rightBorder) * 0.5);
         } while (compare(nthEps, getEps()) == 1);
+        approximatelyMinimums.add((leftBorder + rightBorder) * 0.5); // TODO: tmp!
 
         return new Solution(intervals, approximatelyMinimums);
     }
