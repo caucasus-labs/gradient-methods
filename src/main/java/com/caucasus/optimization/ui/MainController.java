@@ -30,7 +30,7 @@ public class MainController {
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction(List.of(2., 3.), List.of(-30., 10.), 0);
+    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
     final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
     final Interval interval = new Interval(domain.getLower().get(0), domain.getUpper().get(0));
 
@@ -216,15 +216,11 @@ public class MainController {
     }
 
     private GradientSolution getMethodSolution(Methods method) {
-        GradientSolution solution;
-        switch (method) {
-            case GRADIENT: solution = gradientSolution; break;
-            case STEEPEST_DESCENT: solution = steepestDescentSolution; break;
-            case CONJUGATE: solution = conjugateSolution; break;
-            default:
-                throw new IllegalStateException("Unexpected method: " + currentMethod);
-        }
-        return solution;
+        return switch (method) {
+            case GRADIENT -> gradientSolution;
+            case STEEPEST_DESCENT -> steepestDescentSolution;
+            case CONJUGATE -> conjugateSolution;
+        };
     }
 
     private GradientSolution getCurrentSolution() {

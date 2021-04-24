@@ -1,37 +1,36 @@
 package com.caucasus.optimization.algos.entities.util;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class QuadraticFunction {
-    private final Matrix A;
+    private final SymmetricMatrix A;
     private final Vector b;
     private final Double c;
 
-    public QuadraticFunction(Matrix a, Vector b, Double c) {
+    public QuadraticFunction(SymmetricMatrix a, Vector b, Double c) {
         A = a;
         this.b = b;
         this.c = c;
     }
 
-    public Matrix getA() {
-        return A;
-    }
-
-    public Vector getB() {
-        return b;
-    }
-
-    public Double getC() {
-        return c;
-    }
-
-    public QuadraticFunction(List<Double> a, List<Double> b, double c) {
-        A = new Matrix(a);
+    public QuadraticFunction(List<List<Double>> a, List<Double> b, double c) {
+        A = new SymmetricMatrix(a);
         this.b = new Vector(b);
         this.c = c;
 
+    }
+
+    public List<List<Double>> getInitialA(){
+        List<List<Double>> res = new ArrayList<>();
+        for (int i = 0; i < A.size(); i++) {
+            res.add(new ArrayList<>());
+            for (int j = 0; j < A.size(); j++) {
+                res.get(i).add(A.get(i, j) * ((i == j) ? 0.5 : 1));
+            }
+        }
+        return res;
     }
 
     public Vector getGradient(Vector x) {

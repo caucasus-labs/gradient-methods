@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Gradient implements GradientMethod {
+public class Gradient extends AbstractGradientMethod {
     private final QuadraticFunction function;
     private final Double eps;
     private final Domain domain;
@@ -19,14 +19,20 @@ public class Gradient implements GradientMethod {
     }
 
     @Override
-    public GradientSolution getSolution() {
+    public GradientSolution getSolution(boolean saveIterations) {
+        iterations = 0;
         List<Vector> points = new ArrayList<>();
         List<Double> values = new ArrayList<>();
-        int iterations = 0;
-        points.add(domain.between());
-        values.add(function.apply(points.get(0)));
-        Vector gradient = function.getGradient(points.get(0));
-        // TODO: what am I doing wrong?
+
+        Vector newPoint = domain.between();
+        Vector lastPoint = newPoint;
+        double newValue = function.apply(lastPoint);
+        double lastValue = newValue;
+        if (saveIterations) {
+            savePoint(newPoint, points);
+            saveValue(newValue, values);
+        }
+        Vector gradient = function.getGradient(newPoint);
         double learningRate = function.getLearningRate(gradient, gradient.mul(-1));
         if (Double.isNaN(learningRate)) {
             final String msg = "Learning rate is Nan! Points: " +
@@ -35,24 +41,33 @@ public class Gradient implements GradientMethod {
         }
         do {
             if (iterations != 0) {
-                gradient = function.getGradient(points.get(iterations));
+                gradient = function.getGradient(lastPoint);
             }
             while (true) {
-                Vector newPoint = function.shiftVector(points.get(iterations), gradient, learningRate);
-                double newValue = function.apply(newPoint);
-                if (newValue - values.get(iterations) < eps) {
-                    points.add(newPoint);
-                    values.add(newValue);
+                newPoint = function.shiftVector(lastPoint, gradient, learningRate);
+                newValue = function.apply(newPoint);
+                if (newValue - lastValue < eps) {
+                    if (saveIterations) {
+                        savePoint(newPoint, points);
+                        saveValue(newValue, values);
+                    }
                     iterations++;
                     break;
                 } else {
                     learningRate *= 0.5;
                 }
             }
-        } while (iterations < 10000 && (Math.abs(values.get(iterations) - values.get(iterations - 1)) > eps ||
-                points.get(iterations).dist(points.get(iterations - 1)) > eps ||
+            lastPoint = newPoint;
+            lastValue = newValue;
+        } while (iterations < 10000 && (Math.abs(newValue - lastValue) > eps ||
+                newPoint.dist(lastPoint) > eps ||
                 gradient.length() > eps));
+
+        if (!saveIterations) {
+            savePoint(newPoint, points);
+            saveValue(newValue, values);
+        }
+        isCounted = true;
         return new GradientSolution(points, values);
     }
-
 }
