@@ -30,4 +30,8 @@ public class SymmetricMatrix {
         }
         return new Vector(res);
     }
+
+    public int size() {
+        return values.size();
+    }
 }

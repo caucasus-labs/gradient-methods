@@ -22,6 +22,17 @@ public class QuadraticFunction {
 
     }
 
+    public List<List<Double>> getInitialA(){
+        List<List<Double>> res = new ArrayList<>();
+        for (int i = 0; i < A.size(); i++) {
+            res.add(new ArrayList<>());
+            for (int j = 0; j < A.size(); j++) {
+                res.get(i).add(A.get(i, j) * ((i == j) ? 0.5 : 1));
+            }
+        }
+        return res;
+    }
+
     public Vector getGradient(Vector x) {
         return A.mul(x).add(b);
     }
