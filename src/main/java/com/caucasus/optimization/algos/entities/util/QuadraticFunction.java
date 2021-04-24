@@ -15,6 +15,18 @@ public class QuadraticFunction {
         this.c = c;
     }
 
+    public Matrix getA() {
+        return A;
+    }
+
+    public Vector getB() {
+        return b;
+    }
+
+    public Double getC() {
+        return c;
+    }
+
     public QuadraticFunction(List<Double> a, List<Double> b, double c) {
         A = new Matrix(a);
         this.b = new Vector(b);

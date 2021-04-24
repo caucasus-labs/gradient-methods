@@ -10,6 +10,10 @@ public class Matrix {
         this.vectors = vectors;
     }
 
+    public List<Double> getVectors() {
+        return vectors;
+    }
+
     public Vector mul(Vector vector) {
         List<Double> res = new ArrayList<>();
         for (int i = 0; i < vector.size(); i++) {

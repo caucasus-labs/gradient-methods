@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.Double?>
+<?import javafx.scene.chart.LineChart?>
 <StackPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.caucasus.optimization.ui.MainController">
     <fx:define>
@@ -37,15 +38,15 @@
 
         <Button text = "Calculate" onAction="#clickCalculate" AnchorPane.leftAnchor="500" prefHeight="50"/>
 
-        <ScatterChart fx:id="scatterChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
-                  legendVisible="false">
+        <LineChart fx:id="scatterChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
+                   legendVisible="false">
             <xAxis>
                 <NumberAxis upperBound="1"/>
             </xAxis>
             <yAxis>
                 <NumberAxis upperBound="30"/>
             </yAxis>
-        </ScatterChart>
+        </LineChart>
 
         <Label text="x1" layoutX="300" layoutY="540"/>
         <Label text="x2" layoutX="370" layoutY="540"/>
