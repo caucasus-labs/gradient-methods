@@ -33,6 +33,14 @@ public class QuadraticFunction {
         return res;
     }
 
+    public Vector getB() {
+        return b;
+    }
+
+    public Double getC() {
+        return c;
+    }
+
     public Vector getGradient(Vector x) {
         return A.mul(x).add(b);
     }

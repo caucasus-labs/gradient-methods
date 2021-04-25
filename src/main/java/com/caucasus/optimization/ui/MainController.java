@@ -24,7 +24,7 @@ public class MainController {
     @FXML
     private Label x1Label, x2Label, approxLabel;
     @FXML
-    private LineChart<Double, Double> scatterChart;
+    private LineChart<Double, Double> lineChart;
     @FXML
     private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
 
@@ -58,53 +58,54 @@ public class MainController {
 
         gradientButton.fire();
         updateWindow();
-        drawFunctionLevelLines(function, 10.);
+        drawFunctionLevelLines(function, 20.);
     }
 
     private void drawFunctionLevelLines(QuadraticFunction function, Double levelLineStep) {
         double approxMinimum = function.apply(getCurrentSolution().getEndPoint());
         boolean levelExist = true;
 
-        for (Double level = approxMinimum; levelExist; level += levelLineStep) {
+        //FIXME change borders of levels
+        for (Double level = approxMinimum; level <= -approxMinimum; level += levelLineStep) {
             levelExist = drawFunctionLevelLine(function, level);
         }
     }
 
     private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
         List<Function <Double, Double>> levelFunctionsList = getLevelLinesFunctions(function, level);
-        if (levelFunctionsList == null) {
-            return false;
-        }
+
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
         levelFunctionsList.forEach(levelFunction -> series.getData().addAll(plotLineData(levelFunction, interval)));
+        lineChart.getData().add(series);
+        //FIXME
         return true;
     }
 
     private List<Function<Double, Double>> getLevelLinesFunctions(QuadraticFunction function, Double level) {
-        Matrix A = function.getA();
+        List<List<Double>> A = function.getInitialA();
         Vector b = function.getB();
         Double c = function.getC();
-        Double a12 = A.getVectors().get(1); //FIXME
-        Double a11 = A.getVectors().get(0); //FIXME
-        Double a22 = A.getVectors().get(0); //FIXME
+        Double a12 = A.get(0).get(1);
+        Double a11 = A.get(0).get(0);
+        Double a22 = A.get(1).get(1);
         Double b1 = b.get(0);
         Double b2 = b.get(1);
 
-        List<Function<Double, Double>> solutions = quadraticEquationSolutions(
+        return quadraticEquationSolutions(
                 (x -> a11),
                 ((Double x) -> a12 * x + b1),
                 ((Double x) -> a22 * x * x + b2 * x + c - level));
-        // TODO fix return value
-        return null;
     }
 
     private List<Function<Double, Double>> quadraticEquationSolutions(
             Function<Double, Double> a,
             Function<Double, Double> b,
             Function<Double, Double> c) {
-        Function<Double, Double> discriminant = b.andThen(x -> x * x);
-        // TODO fix return value
-        return null;
+        Function<Double, Double> discriminant = (x -> Math.pow(b.apply(x), 2) - 4 * a.apply(x) * c.apply(x));
+        return List.of(
+                (x -> (-b.apply(x) - Math.sqrt(discriminant.apply(x))) / 2 * a.apply(x)),
+                (x -> (-b.apply(x) + Math.sqrt(discriminant.apply(x))) / 2 * a.apply(x))
+        );
     }
 
     private ArrayList<ButtonWithMethod> getButtonsWithMethodList() {
@@ -170,6 +171,9 @@ public class MainController {
 
         final ArrayList<XYChart.Data<Double, Double>> dataList = new ArrayList<>();
         for (double x = interval.getLeftBorder(); x < interval.getRightBorder(); x += step) {
+            if (function.apply(x).isInfinite() || function.apply(x).isNaN()) {
+                continue;
+            }
             plotPoint(x, function.apply(x), dataList);
         }
         plotPoint(interval.getRightBorder(), function.apply(interval.getRightBorder()), dataList);
@@ -183,7 +187,7 @@ public class MainController {
     }
 
     public void clearChart() {
-        scatterChart.getData().clear();
+        lineChart.getData().clear();
     }
 
     private void calculateSolutions(Double eps) {
