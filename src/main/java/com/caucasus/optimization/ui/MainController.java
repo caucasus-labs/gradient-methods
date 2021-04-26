@@ -31,13 +31,13 @@ public class MainController {
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
     final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
+    //final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
+    //final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
     final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
     final Interval interval = new Interval(domain.getLower().get(0), domain.getUpper().get(0));
 
     final Double DEFAULT_EPS = 1e-5;
-    final Double DEFAULT_FAST_EPS = 1e-3;
-    final int PLOT_STEP_COUNT = 1000;
-    final int LEVEL_LINE_COUNT = 10;
+    final int PLOT_STEP_COUNT = 3000;
     final String NUMBER_FORMAT = "%.7f";
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
@@ -58,27 +58,37 @@ public class MainController {
 
         gradientButton.fire();
         updateWindow();
-        drawFunctionLevelLines(function, 20.);
+        drawFunctionLevelLines(function);
     }
 
-    private void drawFunctionLevelLines(QuadraticFunction function, Double levelLineStep) {
+    private void drawFunctionLevelLines(QuadraticFunction function) {
+        double levelLineStep = 1.;
         double approxMinimum = function.apply(getCurrentSolution().getEndPoint());
         boolean levelExist = true;
 
-        //FIXME change borders of levels
-        for (Double level = approxMinimum; level <= -approxMinimum; level += levelLineStep) {
+        int cnt = 0;
+        for (double level = approxMinimum + levelLineStep; levelExist && cnt <= 100; level += levelLineStep, cnt++) {
             levelExist = drawFunctionLevelLine(function, level);
+            levelLineStep *= 2.5;
         }
     }
 
     private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
         List<Function <Double, Double>> levelFunctionsList = getLevelLinesFunctions(function, level);
 
-        XYChart.Series<Double, Double> series = new XYChart.Series<>();
-        levelFunctionsList.forEach(levelFunction -> series.getData().addAll(plotLineData(levelFunction, interval)));
-        lineChart.getData().add(series);
-        //FIXME
-        return true;
+        boolean levelExist = false;
+        for (Function<Double, Double> levelFunction : levelFunctionsList) {
+            XYChart.Series<Double, Double> series = new XYChart.Series<>();
+
+            List<XYChart.Data<Double, Double>> plotLineData = makePlotLineData(levelFunction, interval);
+            series.getData().addAll(plotLineData);
+
+            levelExist = levelExist || !plotLineData.isEmpty();
+            lineChart.getData().add(series);
+            series.nodeProperty().get().setStyle("-fx-stroke-width: 1; -fx-stroke: " + "#B4B4B4");
+        }
+
+        return levelExist;
     }
 
     private List<Function<Double, Double>> getLevelLinesFunctions(QuadraticFunction function, Double level) {
@@ -103,8 +113,8 @@ public class MainController {
             Function<Double, Double> c) {
         Function<Double, Double> discriminant = (x -> Math.pow(b.apply(x), 2) - 4 * a.apply(x) * c.apply(x));
         return List.of(
-                (x -> (-b.apply(x) - Math.sqrt(discriminant.apply(x))) / 2 * a.apply(x)),
-                (x -> (-b.apply(x) + Math.sqrt(discriminant.apply(x))) / 2 * a.apply(x))
+                (x -> (-b.apply(x) - Math.sqrt(discriminant.apply(x))) / (2 * a.apply(x))),
+                (x -> (-b.apply(x) + Math.sqrt(discriminant.apply(x))) / (2 * a.apply(x)))
         );
     }
 
@@ -165,15 +175,12 @@ public class MainController {
 //        series.nodeProperty().get().setStyle("-fx-stroke-width: 7; -fx-stroke: " + color);
     }
 
-    private List<XYChart.Data<Double, Double>> plotLineData(
+    private List<XYChart.Data<Double, Double>> makePlotLineData(
             final Function<Double, Double> function, final Interval interval) {
         double step = (interval.getRightBorder() - interval.getLeftBorder()) / PLOT_STEP_COUNT;
 
         final ArrayList<XYChart.Data<Double, Double>> dataList = new ArrayList<>();
-        for (double x = interval.getLeftBorder(); x < interval.getRightBorder(); x += step) {
-            if (function.apply(x).isInfinite() || function.apply(x).isNaN()) {
-                continue;
-            }
+        for (double x = interval.getLeftBorder(); x <= interval.getRightBorder(); x += step) {
             plotPoint(x, function.apply(x), dataList);
         }
         plotPoint(interval.getRightBorder(), function.apply(interval.getRightBorder()), dataList);
@@ -181,9 +188,12 @@ public class MainController {
         return dataList;
     }
 
-    private void plotPoint(final double x, final double y,
+    private void plotPoint(final Double x, final Double y,
                            final ArrayList<XYChart.Data<Double, Double>> dataList) {
-        dataList.add(new XYChart.Data<>(x, y));
+        if (x >= domain.getLower().get(0) && x <= domain.getUpper().get(0) &&
+                y >= domain.getLower().get(1) && y <= domain.getUpper().get(1)) {
+            dataList.add(new XYChart.Data<>(x, y));
+        }
     }
 
     public void clearChart() {

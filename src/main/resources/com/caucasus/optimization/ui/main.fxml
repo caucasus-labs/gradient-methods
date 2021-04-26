@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.ScatterChart?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
@@ -39,12 +38,12 @@
         <Button text = "Calculate" onAction="#clickCalculate" AnchorPane.leftAnchor="500" prefHeight="50"/>
 
         <LineChart fx:id="lineChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
-                   legendVisible="false">
+                   legendVisible="false" createSymbols="false">
             <xAxis>
-                <NumberAxis upperBound="1"/>
+                <NumberAxis upperBound="20" lowerBound="-20" autoRanging="false"/>
             </xAxis>
             <yAxis>
-                <NumberAxis upperBound="30"/>
+                <NumberAxis upperBound="20" lowerBound="-20" autoRanging="false"/>
             </yAxis>
         </LineChart>
 
