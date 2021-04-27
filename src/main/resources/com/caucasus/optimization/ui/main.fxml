@@ -40,10 +40,10 @@
         <LineChart fx:id="lineChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
                    legendVisible="false" createSymbols="false">
             <xAxis>
-                <NumberAxis upperBound="20" lowerBound="-20" autoRanging="false"/>
+                <NumberAxis fx:id="xAxis" autoRanging="false"/>
             </xAxis>
             <yAxis>
-                <NumberAxis upperBound="20" lowerBound="-20" autoRanging="false"/>
+                <NumberAxis fx:id="yAxis" autoRanging="false"/>
             </yAxis>
         </LineChart>
 
@@ -61,10 +61,8 @@
         <Slider fx:id="iterationSlider" layoutX="250" layoutY="620" prefWidth="300" snapToTicks="true"
                 showTickMarks="true" minorTickCount="4" majorTickUnit="5" blockIncrement="1"/>
 
-
-
+        <Button fx:id="drawButton" onAction="#clickDraw" text="Draw" layoutX="570" layoutY="615"/>
     </AnchorPane>
-
 
     <HBox prefHeight="75.0" prefWidth="800" StackPane.alignment="BOTTOM_CENTER" maxHeight="75.0">
         <ToggleButton maxHeight="$MAX_VALUE" maxWidth="$MAX_VALUE" mnemonicParsing="false"

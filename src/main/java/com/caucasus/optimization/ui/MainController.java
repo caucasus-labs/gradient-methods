@@ -4,6 +4,7 @@ import com.caucasus.optimization.algos.entities.minfinder.*;
 import com.caucasus.optimization.algos.entities.util.*;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
@@ -26,6 +27,8 @@ public class MainController {
     @FXML
     private LineChart<Double, Double> lineChart;
     @FXML
+    private NumberAxis xAxis, yAxis;
+    @FXML
     private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
@@ -44,7 +47,7 @@ public class MainController {
 
     private Methods currentMethod = Methods.GRADIENT;
 
-    private int iterationNumber;
+    private int iterationNumber, functionSeriesCnt;
 
     public void initialize() {
         iterationSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -55,10 +58,16 @@ public class MainController {
         calculateSolutions(DEFAULT_EPS);
         buttonsWithMethod = getButtonsWithMethodList();
         initToggleButtons(buttonsWithMethod);
-
         gradientButton.fire();
         updateWindow();
+        setAxisBounds(xAxis, domain.getLower().get(0), domain.getUpper().get(0));
+        setAxisBounds(yAxis, domain.getLower().get(1), domain.getUpper().get(1));
         drawFunctionLevelLines(function);
+    }
+
+    private void setAxisBounds(NumberAxis axis, Double lower, Double upper) {
+        axis.setLowerBound(lower);
+        axis.setUpperBound(upper);
     }
 
     private void drawFunctionLevelLines(QuadraticFunction function) {
@@ -71,6 +80,7 @@ public class MainController {
             levelExist = drawFunctionLevelLine(function, level);
             levelLineStep *= 2.5;
         }
+        functionSeriesCnt = lineChart.getData().size();
     }
 
     private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
@@ -138,41 +148,36 @@ public class MainController {
     }
 
     private void updateWindow() {
+        updateLabels(iterationNumber);
+        //drawMethodWay(iterationNumber);
+    }
+
+    private void updateLabels(int iterationNumber) {
         iterationNumberLabel.setText(Integer.toString(iterationNumber));
         Vector point = getCurrentSolution().getPoints().get(iterationNumber);
         x1Label.setText(String.format(NUMBER_FORMAT, point.get(0)));
         x2Label.setText(String.format(NUMBER_FORMAT, point.get(1)));
         approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
-
-
-//        clearChart();
-
-//        lineChart.getData().add(functionSeries);
-//        if (currentMethod.isNeedPlot()) {
-//            Function <Double, Double> parabola = getCurrentParaboloidSolution().getParabolas().get(iterationNumber);
-//            if (parabola == null) {
-//                drawBorderPoints(left, right, approx);
-//            } else {
-//                drawParaboloid(parabola, interval);
-//                addPointToChart(approx, parabola.apply(approx), "green");
-//            }
-//        } else {
-//            drawBorderPoints(left, right, approx);
-//        }
     }
 
-//    private void drawBorderPoints(Double left, Double right, Double approx) {
-//        addPointToChart(left, function.apply(left), "blue");
-//        addPointToChart(right, function.apply(right), "blue");
-//        addPointToChart(approx, function.apply(approx), "green");
-//    }
+    private void drawMethodWay(int iterationNumber) {
+        //FIXME need to optimize it
+        int drawnPointsCnt = lineChart.getData().size() - functionSeriesCnt;
+        if (iterationNumber > drawnPointsCnt) {
+            List<Vector> points = getCurrentSolution().getPoints().subList(drawnPointsCnt, iterationNumber);
+            points.forEach(point -> addPointToChart(point, "red"));
+        } else {
+            lineChart.getData().remove(functionSeriesCnt + iterationNumber, lineChart.getData().size());
+        }
+    }
 
-    private void addPointToChart(final double x, final double y, String color) {
-//        XYChart.Series<Double, Double> series = new XYChart.Series<>();
-//        plotPoint(x, y, series);
-//        lineChart.getData().add(series);
-//
-//        series.nodeProperty().get().setStyle("-fx-stroke-width: 7; -fx-stroke: " + color);
+    private void addPointToChart(Vector point, String color) {
+        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+
+        plotPoint(point.get(0), point.get(1), series.getData());
+        lineChart.getData().add(series);
+
+        series.nodeProperty().get().setStyle("-fx-stroke-width: 4; -fx-stroke: " + color);
     }
 
     private List<XYChart.Data<Double, Double>> makePlotLineData(
@@ -189,7 +194,7 @@ public class MainController {
     }
 
     private void plotPoint(final Double x, final Double y,
-                           final ArrayList<XYChart.Data<Double, Double>> dataList) {
+                           final List<XYChart.Data<Double, Double>> dataList) {
         if (x >= domain.getLower().get(0) && x <= domain.getUpper().get(0) &&
                 y >= domain.getLower().get(1) && y <= domain.getUpper().get(1)) {
             dataList.add(new XYChart.Data<>(x, y));
@@ -229,6 +234,11 @@ public class MainController {
         setupMethod(currentMethod);
     }
 
+    @FXML
+    private void clickDraw() {
+        drawMethodWay(iterationNumber);
+    }
+
     private GradientSolution getMethodSolution(Methods method) {
         return switch (method) {
             case GRADIENT -> gradientSolution;
@@ -245,6 +255,7 @@ public class MainController {
         currentMethod = chosenMethod;
         iterationSlider.setValue(0);
         iterationSlider.setMax(getCurrentSolution().getPoints().size() - 1);
+        drawMethodWay(0);
         methodName.setText(currentMethod.getLabelString());
         updateWindow();
     }
