@@ -3,6 +3,7 @@ package com.caucasus.optimization.ui;
 import com.caucasus.optimization.algos.entities.minfinder.*;
 import com.caucasus.optimization.algos.entities.util.*;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -29,40 +30,46 @@ public class MainController {
     @FXML
     private NumberAxis xAxis, yAxis;
     @FXML
-    private ToggleButton gradientButton, steepestDescentButton, conjugateButton;
+    private ToggleButton gradientButton, steepestDescentButton, conjugateButton, showWayButton;
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
-    //final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
-    //final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
-    final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
-    final Interval interval = new Interval(domain.getLower().get(0), domain.getUpper().get(0));
+    private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
+    //private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
+    //private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
+    private final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
+    private final Interval interval = new Interval(domain.getLower().get(0), domain.getUpper().get(0));
 
-    final Double DEFAULT_EPS = 1e-5;
-    final int PLOT_STEP_COUNT = 3000;
-    final String NUMBER_FORMAT = "%.7f";
+    private static final Double DEFAULT_EPS = 1e-5;
+    private static final int PLOT_STEP_COUNT = 3000;
+    private static final String NUMBER_FORMAT = "%.7f";
+    private static final double MIN_BETWEEN_POINTS_DIST = 0.5;
 
     private GradientSolution gradientSolution, steepestDescentSolution, conjugateSolution;
 
-    private Methods currentMethod = Methods.GRADIENT;
+    private Methods currentMethod;
 
-    private int iterationNumber, functionSeriesCnt;
+    private int iterationNumber, functionSeriesSize;
+    private final Vector defaultLastPoint = new Vector(List.of(domain.getUpper().get(0) + MIN_BETWEEN_POINTS_DIST * 2,
+            domain.getUpper().get(1) + MIN_BETWEEN_POINTS_DIST * 2));
+    private Vector lastPoint = defaultLastPoint;
 
     public void initialize() {
         iterationSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             iterationNumber = newValue.intValue();
+            drawMethodWay(oldValue.intValue(), newValue.intValue());
             updateWindow();
         });
 
         calculateSolutions(DEFAULT_EPS);
         buttonsWithMethod = getButtonsWithMethodList();
         initToggleButtons(buttonsWithMethod);
+        drawFunctionLevelLines(function);
         gradientButton.fire();
         updateWindow();
         setAxisBounds(xAxis, domain.getLower().get(0), domain.getUpper().get(0));
         setAxisBounds(yAxis, domain.getLower().get(1), domain.getUpper().get(1));
-        drawFunctionLevelLines(function);
+        drawMethodWay(0, 0);
     }
 
     private void setAxisBounds(NumberAxis axis, Double lower, Double upper) {
@@ -72,7 +79,7 @@ public class MainController {
 
     private void drawFunctionLevelLines(QuadraticFunction function) {
         double levelLineStep = 1.;
-        double approxMinimum = function.apply(getCurrentSolution().getEndPoint());
+        double approxMinimum = function.apply(gradientSolution.getEndPoint());
         boolean levelExist = true;
 
         int cnt = 0;
@@ -80,7 +87,7 @@ public class MainController {
             levelExist = drawFunctionLevelLine(function, level);
             levelLineStep *= 2.5;
         }
-        functionSeriesCnt = lineChart.getData().size();
+        functionSeriesSize = lineChart.getData().size();
     }
 
     private boolean drawFunctionLevelLine(QuadraticFunction function, Double level) {
@@ -112,9 +119,9 @@ public class MainController {
         Double b2 = b.get(1);
 
         return quadraticEquationSolutions(
-                (x -> a11),
-                ((Double x) -> a12 * x + b1),
-                ((Double x) -> a22 * x * x + b2 * x + c - level));
+                (x -> a22),
+                ((Double x) -> a12 * x + b2),
+                ((Double x) -> a11 * x * x + b1 * x + c - level));
     }
 
     private List<Function<Double, Double>> quadraticEquationSolutions(
@@ -149,7 +156,6 @@ public class MainController {
 
     private void updateWindow() {
         updateLabels(iterationNumber);
-        //drawMethodWay(iterationNumber);
     }
 
     private void updateLabels(int iterationNumber) {
@@ -160,24 +166,28 @@ public class MainController {
         approxLabel.setText(String.format(NUMBER_FORMAT, function.apply(point)));
     }
 
-    private void drawMethodWay(int iterationNumber) {
-        //FIXME need to optimize it
-        int drawnPointsCnt = lineChart.getData().size() - functionSeriesCnt;
-        if (iterationNumber > drawnPointsCnt) {
-            List<Vector> points = getCurrentSolution().getPoints().subList(drawnPointsCnt, iterationNumber);
+    private void drawMethodWay(int oldIterationNumber, int newIterationNumber) {
+        if (oldIterationNumber <= newIterationNumber) {
+            List<Vector> points = getCurrentSolution().getPoints().subList(oldIterationNumber, newIterationNumber + 1);
             points.forEach(point -> addPointToChart(point, "red"));
         } else {
-            lineChart.getData().remove(functionSeriesCnt + iterationNumber, lineChart.getData().size());
+            clearMethodWay();
+            drawMethodWay(0, newIterationNumber);
         }
     }
 
     private void addPointToChart(Vector point, String color) {
-        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+        if (point.dist(lastPoint) > MIN_BETWEEN_POINTS_DIST) {
+            XYChart.Series<Double, Double> series = new XYChart.Series<>();
+            if (showWayButton.isSelected()) {
+                plotPoint(lastPoint.get(0), lastPoint.get(1), series.getData());
+            }
+            plotPoint(point.get(0), point.get(1), series.getData());
+            lineChart.getData().add(series);
 
-        plotPoint(point.get(0), point.get(1), series.getData());
-        lineChart.getData().add(series);
-
-        series.nodeProperty().get().setStyle("-fx-stroke-width: 4; -fx-stroke: " + color);
+            series.nodeProperty().get().setStyle("-fx-stroke-width: 3; -fx-stroke: " + color);
+            lastPoint = point;
+        }
     }
 
     private List<XYChart.Data<Double, Double>> makePlotLineData(
@@ -201,8 +211,13 @@ public class MainController {
         }
     }
 
-    public void clearChart() {
+    private void clearChart() {
         lineChart.getData().clear();
+    }
+
+    private void clearMethodWay() {
+        lineChart.getData().remove(functionSeriesSize, lineChart.getData().size());
+        lastPoint = defaultLastPoint;
     }
 
     private void calculateSolutions(Double eps) {
@@ -234,11 +249,6 @@ public class MainController {
         setupMethod(currentMethod);
     }
 
-    @FXML
-    private void clickDraw() {
-        drawMethodWay(iterationNumber);
-    }
-
     private GradientSolution getMethodSolution(Methods method) {
         return switch (method) {
             case GRADIENT -> gradientSolution;
@@ -253,10 +263,11 @@ public class MainController {
 
     private void setupMethod(Methods chosenMethod) {
         currentMethod = chosenMethod;
+        clearMethodWay();
         iterationSlider.setValue(0);
         iterationSlider.setMax(getCurrentSolution().getPoints().size() - 1);
-        drawMethodWay(0);
         methodName.setText(currentMethod.getLabelString());
+        drawMethodWay(0, 0);
         updateWindow();
     }
 
@@ -274,4 +285,32 @@ public class MainController {
     private void clickConjugate() {
         setupMethod(Methods.CONJUGATE);
     }
+
+    @FXML
+    public void clickShowLevels() {
+        for (int i = 0; i < functionSeriesSize; i++) {
+            Node node = lineChart.getData().get(i).getNode();
+            node.setVisible(!node.isVisible());
+        }
+    }
+
+    @FXML
+    public void clickShowWay() {
+        clearMethodWay();
+        drawMethodWay(0, iterationNumber);
+    }
+
+    @FXML
+    public void clickShowLegend() {
+        xAxis.setLabel((xAxis.getLabel().equals("") ? "x1" : ""));
+        yAxis.setLabel((yAxis.getLabel().equals("") ? "x2" : ""));
+    }
+
+    @FXML
+    public void clickShowAxis() {
+        xAxis.setTickLabelsVisible(!xAxis.isTickLabelsVisible());
+        yAxis.setTickLabelsVisible(!yAxis.isTickLabelsVisible());
+    }
+
+
 }

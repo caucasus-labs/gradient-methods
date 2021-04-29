@@ -40,12 +40,21 @@
         <LineChart fx:id="lineChart" layoutX="140" layoutY="50.0" prefHeight="500" prefWidth="500" animated="false"
                    legendVisible="false" createSymbols="false">
             <xAxis>
-                <NumberAxis fx:id="xAxis" autoRanging="false"/>
+                <NumberAxis fx:id="xAxis" autoRanging="false" label="x1"/>
             </xAxis>
             <yAxis>
-                <NumberAxis fx:id="yAxis" autoRanging="false"/>
+                <NumberAxis fx:id="yAxis" autoRanging="false" label="x2"/>
             </yAxis>
         </LineChart>
+
+        <ToggleButton onAction="#clickShowLevels" text="Show levels" layoutX="650" layoutY="65"
+            selected="true"/>
+
+        <ToggleButton fx:id="showWayButton" onAction="#clickShowWay" text="Show way" layoutX="650" layoutY="110"/>
+
+        <ToggleButton onAction="#clickShowLegend" text="Show legend" layoutX="650" layoutY="155" selected="true"/>
+
+        <ToggleButton onAction="#clickShowAxis" text="Show axis" layoutX="650" layoutY="200" selected="true"/>
 
         <Label text="x1" layoutX="300" layoutY="540"/>
         <Label text="x2" layoutX="370" layoutY="540"/>
@@ -60,8 +69,6 @@
 
         <Slider fx:id="iterationSlider" layoutX="250" layoutY="620" prefWidth="300" snapToTicks="true"
                 showTickMarks="true" minorTickCount="4" majorTickUnit="5" blockIncrement="1"/>
-
-        <Button fx:id="drawButton" onAction="#clickDraw" text="Draw" layoutX="570" layoutY="615"/>
     </AnchorPane>
 
     <HBox prefHeight="75.0" prefWidth="800" StackPane.alignment="BOTTOM_CENTER" maxHeight="75.0">
