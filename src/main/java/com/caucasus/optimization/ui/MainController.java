@@ -31,12 +31,12 @@ public class MainController {
     private NumberAxis xAxis, yAxis;
     @FXML
     private ToggleButton gradientButton, steepestDescentButton, conjugateButton, showWayButton;
+    @FXML
+    private ToggleButton f1Button, f2Button, f3Button;
 
     private ArrayList<ButtonWithMethod> buttonsWithMethod;
 
-    private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
-    //private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
-    //private final QuadraticFunction function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
+    private QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
     private final Domain domain = new Domain(new Vector(List.of(-20., -20.)), new Vector(List.of(20., 20.)));
     private final Interval interval = new Interval(domain.getLower().get(0), domain.getUpper().get(0));
 
@@ -66,6 +66,7 @@ public class MainController {
         initToggleButtons(buttonsWithMethod);
         drawFunctionLevelLines(function);
         gradientButton.fire();
+        f1Button.fire();
         updateWindow();
         setAxisBounds(xAxis, domain.getLower().get(0), domain.getUpper().get(0));
         setAxisBounds(yAxis, domain.getLower().get(1), domain.getUpper().get(1));
@@ -147,6 +148,7 @@ public class MainController {
     private void initToggleButtons(List<ButtonWithMethod> buttons) {
         makeToggleGroup(buttons.stream().map(ButtonWithMethod::getButton).collect(Collectors.toList()));
         updateButtonsText(buttonsWithMethod);
+        makeToggleGroup(List.of(f1Button, f2Button, f3Button));
     }
 
     private void makeToggleGroup(List<ToggleButton> buttons) {
@@ -312,5 +314,29 @@ public class MainController {
         yAxis.setTickLabelsVisible(!yAxis.isTickLabelsVisible());
     }
 
+    @FXML
+    public void clickF1() {
+        function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
+        calculateSolutions(DEFAULT_EPS);
+        clearChart();
+        drawFunctionLevelLines(function);
+        setupMethod(currentMethod);
+    }
 
+    @FXML
+    public void clickF2() {
+        function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
+        calculateSolutions(DEFAULT_EPS);
+        clearChart();
+        drawFunctionLevelLines(function);
+        setupMethod(currentMethod);    }
+
+    @FXML
+    public void clickF3() {
+        function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
+        calculateSolutions(DEFAULT_EPS);
+        clearChart();
+        drawFunctionLevelLines(function);
+
+        setupMethod(currentMethod);    }
 }

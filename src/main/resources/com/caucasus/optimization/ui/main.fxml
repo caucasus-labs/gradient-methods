@@ -47,6 +47,12 @@
             </yAxis>
         </LineChart>
 
+        <ToggleButton fx:id="f1Button" onAction="#clickF1" text="Function 1" layoutX="50" layoutY="200"/>
+
+        <ToggleButton fx:id="f2Button" onAction="#clickF2" text="Function 2" layoutX="50" layoutY="265"/>
+
+        <ToggleButton fx:id="f3Button" onAction="#clickF3" text="Function 3" layoutX="50" layoutY="330"/>
+
         <ToggleButton onAction="#clickShowLevels" text="Show levels" layoutX="650" layoutY="65"
             selected="true"/>
 
