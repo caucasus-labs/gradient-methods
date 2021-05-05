@@ -53,14 +53,20 @@
 
         <ToggleButton fx:id="f3Button" onAction="#clickF3" text="Function 3" layoutX="50" layoutY="330"/>
 
-        <ToggleButton onAction="#clickShowLevels" text="Show levels" layoutX="650" layoutY="65"
-            selected="true"/>
+        <ToggleButton fx:id="showLevelsButton" onAction="#clickShowLevels" text="Show levels" layoutX="650" layoutY="65"/>
 
-        <ToggleButton fx:id="showWayButton" onAction="#clickShowWay" text="Show way" layoutX="650" layoutY="110"/>
+        <ToggleButton fx:id="showWayButton" onAction="#clickShowWay" text="Show way" layoutX="650" layoutY="110"
+                      selected="true"/>
 
         <ToggleButton onAction="#clickShowLegend" text="Show legend" layoutX="650" layoutY="155" selected="true"/>
 
         <ToggleButton onAction="#clickShowAxis" text="Show axis" layoutX="650" layoutY="200" selected="true"/>
+
+        <Label text="zoom" layoutX="690" layoutY="250"/>
+
+        <Button onAction="#clickZoomMinus" text = "-" layoutX="670" layoutY="275"/>
+
+        <Button onAction="#clickZoomPlus" text = "+" layoutX="720" layoutY="275"/>
 
         <Label text="x1" layoutX="300" layoutY="540"/>
         <Label text="x2" layoutX="370" layoutY="540"/>

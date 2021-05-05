@@ -30,7 +30,7 @@ public class MainController {
     @FXML
     private NumberAxis xAxis, yAxis;
     @FXML
-    private ToggleButton gradientButton, steepestDescentButton, conjugateButton, showWayButton;
+    private ToggleButton gradientButton, steepestDescentButton, conjugateButton, showWayButton, showLevelsButton;
     @FXML
     private ToggleButton f1Button, f2Button, f3Button;
 
@@ -49,7 +49,7 @@ public class MainController {
 
     private Methods currentMethod;
 
-    private int iterationNumber, functionSeriesSize;
+    private int iterationNumber, functionSeriesSize, currentZoom;
     private final Vector defaultLastPoint = new Vector(List.of(domain.getUpper().get(0) + MIN_BETWEEN_POINTS_DIST * 2,
             domain.getUpper().get(1) + MIN_BETWEEN_POINTS_DIST * 2));
     private Vector lastPoint = defaultLastPoint;
@@ -68,9 +68,24 @@ public class MainController {
         gradientButton.fire();
         f1Button.fire();
         updateWindow();
+
         setAxisBounds(xAxis, domain.getLower().get(0), domain.getUpper().get(0));
         setAxisBounds(yAxis, domain.getLower().get(1), domain.getUpper().get(1));
+        setZoom(0);
         drawMethodWay(0, 0);
+    }
+
+    void setZoom(int zoomLevel) {
+        if (zoomLevel == 0) {
+            setAxisBounds(xAxis, domain.getLower().get(0), domain.getUpper().get(0));
+            setAxisBounds(yAxis, domain.getLower().get(1), domain.getUpper().get(1));
+        }
+        else {
+            Vector approxMin = getCurrentSolution().getEndPoint();
+            Double delta = 10.0 / zoomLevel;
+            setAxisBounds(xAxis, approxMin.get(0) - delta, approxMin.get(0) + delta);
+            setAxisBounds(yAxis, approxMin.get(1) - delta, approxMin.get(1) + delta);
+        }
     }
 
     private void setAxisBounds(NumberAxis axis, Double lower, Double upper) {
@@ -271,6 +286,7 @@ public class MainController {
         methodName.setText(currentMethod.getLabelString());
         drawMethodWay(0, 0);
         updateWindow();
+        setZoom(0);
     }
 
     @FXML
@@ -314,29 +330,37 @@ public class MainController {
         yAxis.setTickLabelsVisible(!yAxis.isTickLabelsVisible());
     }
 
-    @FXML
-    public void clickF1() {
-        function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
+    public void setupFunction(QuadraticFunction f) {
+        function = f;
         calculateSolutions(DEFAULT_EPS);
         clearChart();
         drawFunctionLevelLines(function);
+        showLevelsButton.setSelected(true);
         setupMethod(currentMethod);
     }
 
     @FXML
+    public void clickF1() {
+        setupFunction(new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13));
+    }
+
+    @FXML
     public void clickF2() {
-        function = new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.);
-        calculateSolutions(DEFAULT_EPS);
-        clearChart();
-        drawFunctionLevelLines(function);
-        setupMethod(currentMethod);    }
+        setupFunction(new QuadraticFunction(List.of(List.of(1., 0.), List.of(0., 1.)), List.of(0., 0.), 10.));
+    }
 
     @FXML
     public void clickF3() {
-        function = new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6);
-        calculateSolutions(DEFAULT_EPS);
-        clearChart();
-        drawFunctionLevelLines(function);
+        setupFunction(new QuadraticFunction(List.of(List.of(1., 2.), List.of(2., 3.)), List.of(4., 5.), 6));
+    }
 
-        setupMethod(currentMethod);    }
+    @FXML
+    public void clickZoomMinus() {
+        setZoom(currentZoom > 0 ? --currentZoom : 0);
+    }
+
+    @FXML
+    public void clickZoomPlus() {
+        setZoom(currentZoom < 3 ? ++currentZoom : 3);
+    }
 }
