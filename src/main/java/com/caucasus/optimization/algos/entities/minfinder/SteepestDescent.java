@@ -47,11 +47,11 @@ public class SteepestDescent extends AbstractGradientMethod {
             final Vector xk = lastPoint;
             final Function<Double, Double> funcToMinimize = alpha -> function.apply(xk.add(pass.mul(-alpha)));
             double newAlpha = (switch (method) {
-                case FIBONACCI ->   new Fibonacci(funcToMinimize, 0., learningRate, eps).getSolution();
-                case DICHOTOMY ->   new Dichotomy(funcToMinimize, 0., learningRate, eps).getSolution();
-                case BRENT ->           new Brent(funcToMinimize, 0., learningRate, eps).getParaboloidSolution();
-                case PARABOLOID -> new Paraboloid(funcToMinimize, 0., learningRate, eps).getParaboloidSolution();
-                default ->      new GoldenSection(funcToMinimize, 0., learningRate, eps).getSolution();
+                case FIBONACCI ->   new Fibonacci(funcToMinimize, 0., 1., eps).getSolution();
+                case DICHOTOMY ->   new Dichotomy(funcToMinimize, 0., 1., eps).getSolution();
+                case BRENT ->           new Brent(funcToMinimize, 0., 1., eps).getParaboloidSolution();
+                case PARABOLOID -> new Paraboloid(funcToMinimize, 0., 1., eps).getParaboloidSolution();
+                default ->      new GoldenSection(funcToMinimize, 0., 1., eps).getSolution();
             }).getEndPoint();
 
             newPoint = function.shiftVector(lastPoint, gradient, newAlpha);
