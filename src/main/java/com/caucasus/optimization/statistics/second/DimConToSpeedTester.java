@@ -141,7 +141,7 @@ public class DimConToSpeedTester {
     }
 
     private static int getIterations(final int dim, final int condNumber, final Class<?> methodType ) {
-        final QuadraticFunction function = generateFunction(dim, condNumber);
+        final QuadraticFunction function = Utils.generateFunction(dim, condNumber);
         final Domain domain = new Domain(
                 new Vector(new ArrayList<>(Collections.nCopies(dim, -100.))),
                 new Vector(new ArrayList<>(Collections.nCopies(dim, 100.)))
@@ -170,20 +170,6 @@ public class DimConToSpeedTester {
         ChartWriter.writeChart(fileName, points, ChartPoint::toString);
     }
 
-    private static QuadraticFunction generateFunction(int dimension, int conditionalNumber) {
-        Random random = new Random();
-        double first = random.nextDouble();
-        double last = first * conditionalNumber;
-        List<Double> list = random.doubles(dimension, first, last)
-                .sorted().boxed().collect(Collectors.toList());
-        List<List<Double>> a = new ArrayList<>();
-        for (int i = 0; i < dimension; i++) {
-            a.add(new ArrayList<>(Collections.nCopies(dimension, 0.)));
-            a.get(i).set(i, list.get(i));
-        }
-        a.get(0).set(0, first);
-        a.get(dimension - 1).set(dimension - 1, last);
-        return new QuadraticFunction(a, new ArrayList<>(Collections.nCopies(dimension, 0.)), 0.);
-    }
+
 
 }
