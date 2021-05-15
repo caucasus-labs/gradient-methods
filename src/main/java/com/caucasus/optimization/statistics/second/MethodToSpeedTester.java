@@ -2,6 +2,7 @@ package com.caucasus.optimization.statistics.second;
 
 import com.caucasus.optimization.algos.entities.minfinder.SteepestDescent;
 import com.caucasus.optimization.algos.entities.util.*;
+import com.caucasus.optimization.algos.entities.util.Vector;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,10 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Class to retrieve one-dim minimizer function to iterations statistics.
@@ -22,33 +20,38 @@ import java.util.Random;
  * @author nkorzh
  */
 public class MethodToSpeedTester {
+    static QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
     public static void main(String[] args) {
         // TODO: launch quadratic func at 5 different methods for each gradient method
         final double eps = 1e-5;
         Domain domain = new Domain(new Vector(List.of(-100., -100.)), new Vector(List.of(100., 100.)));
-//        QuadraticFunction function = new QuadraticFunction(List.of(List.of(64., 126.), List.of(126., 64.)), List.of(-10., 30.), 13);
-        writeStat("steepestMethod", getSteepestStat(100, domain, eps));
+        writeStat("steepestMethod", getSteepestStat(50, domain, eps));
     }
 
     private static List<Double> getSteepestStat(final int experimentsAmount,
                                                 final Domain domain,
                                                 final double eps) {
-        List<Double> res = new ArrayList<>();
+        List<Double> res = new ArrayList<>(List.of(0., 0., 0.));
         Random rand = new Random();
         Method[] methods = new Method[]{Method.FIBONACCI, Method.DICHOTOMY, Method.GOLDEN_SECTION};
 
-        for (Method method : methods) {
-            int iterations = 0;
-            for (int i = 0; i < experimentsAmount; i++) {
-                iterations += new SteepestDescent(
-                        Utils.generateFunction(rand.nextInt(100) + 1,
-                                rand.nextInt(100) + 10),
-                        eps,
-                        domain,
-                        method
-                ).getIterations();
+        for (int i = 0; i < experimentsAmount; i++) {
+            QuadraticFunction func = Utils.generateFunction(
+                    rand.nextInt(100) + 1,
+                    rand.nextInt(100) + 2);
+            for (int j = 0; j < methods.length; j++) {
+                res.set(j,
+                        res.get(j) + new SteepestDescent(
+                                func,
+                                eps,
+                                domain,
+                                methods[j]
+                                ).getIterations()
+                );
             }
-            res.add((double) iterations / experimentsAmount);
+        }
+        for (int i = 0; i < res.size(); i++) {
+            res.set(i, res.get(i) / experimentsAmount);
         }
         return res;
     }
